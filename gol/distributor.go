@@ -5,6 +5,7 @@ import (
 	"net/rpc"
 	"strconv"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
+	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
@@ -17,14 +18,14 @@ type distributorChannels struct {
 	ioInput    <-chan uint8
 }
 
-func makeCall(client *rpc.Client, message [][]byte, p Params) {
+func makeCall(client *rpc.Client, message [][]byte, p subParams.Params) {
 	request := stubs.Request{message, p}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	//fmt.Println("Responded: " + response.Message)
 }
 
-func client(newWorld [][]byte, p Params) {
+func client(newWorld [][]byte, p subParams.Params) {
 	server := flag.String("server", "127.0.0.1:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
@@ -62,7 +63,8 @@ func distributor(p Params, c distributorChannels) {
 	}
 
 	// TODO: Execute all turns of the Game of Life.
-	client(newWorld, p)
+	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
+	client(newWorld, x)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 

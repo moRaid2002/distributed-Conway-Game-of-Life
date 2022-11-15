@@ -1,4 +1,4 @@
-package gol
+package main
 
 import (
 	"flag"
@@ -7,6 +7,7 @@ import (
 	"net/rpc"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
+	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
@@ -19,7 +20,7 @@ func ReverseString(s string, i int) string {
 	return string(runes)
 }
 
-func gameOfLife(p Params, newWorld [][]byte, startX int, endX int) [][]byte {
+func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
 	nextState := make([][]byte, endX-startX)
 	for i := 0; i < endX-startX; i++ {
