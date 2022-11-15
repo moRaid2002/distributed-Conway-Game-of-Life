@@ -23,11 +23,12 @@ func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params) {
 	request := stubs.Request{message, p}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
+	*message = response.NewState
 	//fmt.Println("Responded: " + response.Message)
 }
 
-func client(newWorld *[][]byte, p subParams.Params) {
-	server := flag.String("server", "44.211.223.13:8030", "IP:port string to connect to as server")
+func client(newWorld *[][]byte, p subParams.Params, server2 string) {
+	server := flag.String(server2, "44.211.223.13:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -65,12 +66,23 @@ func distributor(p Params, c distributorChannels) {
 	}
 
 	// TODO: Execute all turns of the Game of Life.
+
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
-	if p.Turns != 0 {
-		client(&newWorld, x)
-	}
+
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads))
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
+	c.ioCommand <- ioOutput
+	filename = filename + "x" + strconv.Itoa(p.Turns)
+	c.ioFilename <- filename
+
+	for h := 0; h < p.ImageHeight; h++ {
+		for w := 0; w < p.ImageWidth; w++ {
+
+			c.ioOutput <- newWorld[h][w]
+
+		}
+	}
 
 	// Make sure that the Io has finished any output before exiting.
 	new := make([]util.Cell, 0)
