@@ -26,7 +26,7 @@ func makeCall(client *rpc.Client, message [][]byte, p subParams.Params) {
 }
 
 func client(newWorld [][]byte, p subParams.Params) {
-	server := flag.String("server", "127.0.0.1:8030", "IP:port string to connect to as server")
+	server := flag.String("server", "44.211.223.13:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
