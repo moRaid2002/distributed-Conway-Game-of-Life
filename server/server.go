@@ -93,17 +93,40 @@ func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][
 	}
 	return nextState // The reason why you need New World2..... Because if you do not store it to newWorld2 then there could be a cell which is still alive, although it has to be dead.
 }
+func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX int, endX int) {
+	newState := gameOfLife(p, newWorld, startX, endX)
+	out <- newState // Sending the game of life function through the channel.
+}
 
 type GameOfLife struct{}
 
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
+	var chanels []chan [][]byte
+	var newstate [][]byte
+	for threads := 0; threads < req.P.Threads; threads++ {
+		chanels = append(chanels, make(chan [][]byte))
+	}
 	turns := 0
 	for turns < req.P.Turns {
-		*req.CurrentStates = gameOfLife(req.P, *req.CurrentStates, 0, req.P.ImageHeight)
+		//
+		//*req.CurrentStates = gameOfLife(req.P, *req.CurrentStates, 0, req.P.ImageHeight)
+		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
+			if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
+				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), req.P.ImageHeight)
+			} else {
+				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), (threads+1)*int(req.P.ImageHeight/req.P.Threads))
+			}
+		}
+		for threads := 0; threads < req.P.Threads; threads++ {
+			received := <-chanels[threads] // Receiving the thread and append them together.
+			newstate = append(newstate, received...)
+		}
+		*req.CurrentStates = newstate
+		newstate = nil
 		turns++
 	}
-	
+
 	res.NewState = *req.CurrentStates
 
 	return
