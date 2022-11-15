@@ -100,11 +100,11 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	fmt.Println("enter")
 	turns := 0
 	for turns < req.P.Turns {
-		req.CurrentStates = gameOfLife(req.P, req.CurrentStates, 0, req.P.ImageHeight)
+		*req.CurrentStates = gameOfLife(req.P, *req.CurrentStates, 0, req.P.ImageHeight)
 		turns++
 	}
 
-	res.NewState = req.CurrentStates
+	res.NewState = *req.CurrentStates
 
 	return
 }

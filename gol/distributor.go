@@ -19,14 +19,14 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, message [][]byte, p subParams.Params) {
+func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params) {
 	request := stubs.Request{message, p}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	//fmt.Println("Responded: " + response.Message)
 }
 
-func client(newWorld [][]byte, p subParams.Params) {
+func client(newWorld *[][]byte, p subParams.Params) {
 	server := flag.String("server", "44.211.223.13:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
@@ -67,7 +67,7 @@ func distributor(p Params, c distributorChannels) {
 	// TODO: Execute all turns of the Game of Life.
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	if p.Turns != 0 {
-		client(newWorld, x)
+		client(&newWorld, x)
 	}
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
