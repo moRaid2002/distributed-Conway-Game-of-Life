@@ -97,6 +97,7 @@ func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][
 type GameOfLife struct{}
 
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
+	fmt.Println("enter")
 	turns := 0
 	for turns < req.P.Turns {
 		req.CurrentStates = gameOfLife(req.P, req.CurrentStates, 0, req.P.ImageHeight)
@@ -117,4 +118,6 @@ func main() {
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
 	rpc.Accept(listener)
+	//GameOfLife{}.EvaluateBoard
+
 }

@@ -16,6 +16,7 @@ type distributorChannels struct {
 	ioFilename chan<- string
 	ioOutput   chan<- uint8
 	ioInput    <-chan uint8
+	keyPresses <-chan rune
 }
 
 func makeCall(client *rpc.Client, message [][]byte, p subParams.Params) {
@@ -56,7 +57,8 @@ func distributor(p Params, c distributorChannels) {
 		for w := 0; w < p.ImageWidth; w++ {
 
 			newWorld[h][w] = <-c.ioInput
-			if newWorld[h][w] == 255 { // If the cell is alive then you need to notify Using CellFlipped event.
+			if newWorld[h][w] == 255 {
+				// If the cell is alive then you need to notify Using CellFlipped event.
 				c.events <- CellFlipped{0, util.Cell{w, h}}
 			}
 		}
@@ -64,11 +66,27 @@ func distributor(p Params, c distributorChannels) {
 
 	// TODO: Execute all turns of the Game of Life.
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
-	client(newWorld, x)
+	if p.Turns != 0 {
+		client(newWorld, x)
+	}
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 
 	// Make sure that the Io has finished any output before exiting.
+	new := make([]util.Cell, 0)
+	for h := 0; h < p.ImageHeight; h++ {
+		for w := 0; w < p.ImageWidth; w++ {
+
+			if newWorld[h][w] == 255 {
+				cell := util.Cell{w, h}
+				new = append(new, cell)
+			}
+		}
+	}
+	c.events <- FinalTurnComplete{
+		p.Turns,
+		new,
+	}
 	c.ioCommand <- ioCheckIdle
 	<-c.ioIdle
 
