@@ -2,6 +2,7 @@ package gol
 
 import (
 	"flag"
+	"fmt"
 	"net/rpc"
 	"strconv"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
@@ -19,21 +20,21 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params) {
-	request := stubs.Request{message, p}
+func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params, out chan<- int) {
+	request := stubs.Request{message, p, out}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*message = response.NewState
 	//fmt.Println("Responded: " + response.Message)
 }
 
-func client(newWorld *[][]byte, p subParams.Params, server2 string) {
-	server := flag.String(server2, "44.211.223.13:8030", "IP:port string to connect to as server")
+func client(newWorld *[][]byte, p subParams.Params, server2 string, out chan<- int) {
+	server := flag.String(server2, "52.87.245.176:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
 
-	makeCall(client, newWorld, p)
+	makeCall(client, newWorld, p, out)
 
 }
 
@@ -68,9 +69,10 @@ func distributor(p Params, c distributorChannels) {
 	// TODO: Execute all turns of the Game of Life.
 
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
-
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads))
-
+	out := make(chan int)
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), out)
+	recieved := <-out
+	fmt.Println(recieved)
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 	c.ioCommand <- ioOutput
 	filename = filename + "x" + strconv.Itoa(p.Turns)

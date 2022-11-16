@@ -11,4 +11,5 @@ type Response struct {
 type Request struct {
 	CurrentStates *[][]byte
 	P             subParams.Params
+	Out           chan<- int
 }
