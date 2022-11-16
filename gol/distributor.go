@@ -21,7 +21,7 @@ type distributorChannels struct {
 }
 
 func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params, out chan<- int) {
-	request := stubs.Request{message, p, out}
+	request := stubs.Request{message, p}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*message = response.NewState
