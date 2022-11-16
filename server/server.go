@@ -126,7 +126,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		newstate = nil
 		turns++
 	}
-	req.Out <- 3
+	res.Out <- 3
 	res.NewState = *req.CurrentStates
 
 	return
