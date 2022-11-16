@@ -6,7 +6,7 @@ var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
 
 type Response struct {
 	NewState [][]byte
-	Out      chan int
+	//Out      chan int
 }
 
 type Request struct {
