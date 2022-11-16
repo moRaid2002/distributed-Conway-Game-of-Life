@@ -25,6 +25,8 @@ func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params, out cha
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*message = response.NewState
+	recieved := <-response.Out
+	out <- recieved
 	//fmt.Println("Responded: " + response.Message)
 }
 
