@@ -109,8 +109,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	}
 	turns := 0
 	for turns < req.P.Turns {
-		//
-		//*req.CurrentStates = gameOfLife(req.P, *req.CurrentStates, 0, req.P.ImageHeight)
+
 		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
 			if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
 				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), req.P.ImageHeight)
@@ -126,7 +125,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		newstate = nil
 		turns++
 	}
-	//res.Out <- 3
+	res.Out <- 3
 	res.NewState = *req.CurrentStates
 
 	return
