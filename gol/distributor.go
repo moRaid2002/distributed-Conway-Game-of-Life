@@ -2,6 +2,7 @@ package gol
 
 import (
 	"flag"
+	"fmt"
 	"net/rpc"
 	"strconv"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
@@ -24,8 +25,8 @@ func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params, out cha
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*message = response.NewState
-	//recieved := <-response.Out
-	//out <- recieved
+	recieved := <-response.Out
+	out <- recieved
 	//fmt.Println("Responded: " + response.Message)
 }
 
@@ -74,6 +75,12 @@ func distributor(p Params, c distributorChannels) {
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), out)
 	//recieved := <-out
 	//fmt.Println(recieved)
+	go func() {
+		select {
+		case <-out:
+			fmt.Println(out)
+		}
+	}()
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 	c.ioCommand <- ioOutput
 	filename = filename + "x" + strconv.Itoa(p.Turns)
