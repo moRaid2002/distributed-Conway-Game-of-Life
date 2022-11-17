@@ -14,4 +14,6 @@ type Response struct {
 type Request struct {
 	CurrentStates *[][]byte
 	P             subParams.Params
+	CurrentState  chan [][]byte
+	CurrentTurn   chan int
 }
