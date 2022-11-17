@@ -21,15 +21,15 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params) {
-	request := stubs.Request{newWorld, p}
+func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state chan [][]byte, turn chan int) {
+	request := stubs.Request{newWorld, p, state, turn}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*newWorld = response.NewState
 
 }
-func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distributorChannels) {
-	request := stubs.Request{newWorld, p}
+func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distributorChannels, state chan [][]byte, turn chan int) {
+	request := stubs.Request{newWorld, p, state, turn}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, request, response)
 	*newWorld = response.NewState
@@ -42,14 +42,15 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-
-	makeCall(client, newWorld, p)
+	state := make(chan [][]byte)
+	turn := make(chan int)
+	makeCall(client, newWorld, p, state, turn)
 	ticker := time.NewTicker(time.Second * 2)
 	go func() {
 		select {
 		case <-ticker.C:
 			if *flags {
-				seconds(client, newWorld, p, c)
+				seconds(client, newWorld, p, c, state, turn)
 			}
 
 		}
