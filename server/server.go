@@ -140,13 +140,13 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 			received := <-chanels[threads] // Receiving the thread and append them together.
 			newstate = append(newstate, received...)
 		}
-		req.Mutex.Lock()
+		//req.Mutex.Lock()
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
 		req.CurrentState = *req.CurrentStates
 		req.CurrentTurn = turns
-		req.Mutex.Unlock()
+		//req.Mutex.Unlock()
 
 	}
 

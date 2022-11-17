@@ -39,25 +39,17 @@ func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state 
 		select {
 		case <-ticker.C:
 			if *flags {
-				request.Mutex.Lock()
+				//request.Mutex.Lock()
 				client.Call(stubs.GameOfLifeAlive, request, response)
 				c.events <- TurnComplete{response.Turn}
 				c.events <- AliveCellsCount{response.Turn, response.Alive}
-				request.Mutex.Unlock()
+				//request.Mutex.Unlock()
 			}
 		}
 	}()
 	if x {
 		*newWorld = response.NewState
 	}
-}
-func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distributorChannels, state [][]byte, turn int) {
-	request := stubs.Request{newWorld, p, state, turn}
-	response := new(stubs.Response)
-	client.Call(stubs.GameOfLifeAlive, request, response)
-	*newWorld = response.NewState
-	c.events <- AliveCellsCount{response.Turn, response.Alive}
-
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
