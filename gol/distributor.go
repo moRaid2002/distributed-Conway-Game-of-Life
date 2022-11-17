@@ -37,7 +37,7 @@ func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distr
 
 }
 
-func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags bool) {
+func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
 	server := flag.String(server2, "44.204.58.69:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
@@ -48,7 +48,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	go func() {
 		select {
 		case <-ticker.C:
-			if flags {
+			if *flags {
 				seconds(client, newWorld, p, c)
 			}
 
@@ -89,7 +89,7 @@ func distributor(p Params, c distributorChannels) {
 	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	out := make(chan int)
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, flag)
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
 	go func() {
 		select {
