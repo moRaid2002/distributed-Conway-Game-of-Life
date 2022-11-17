@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/rpc"
 	"strconv"
-	"sync"
-	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
@@ -23,33 +21,11 @@ type distributorChannels struct {
 }
 
 func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state [][]byte, turn int, c distributorChannels, flags *bool) {
-	request := stubs.Request{newWorld, p, state, turn, sync.Mutex{}}
+	request := stubs.Request{newWorld, p}
 	response := new(stubs.Response)
-	//client.Call(stubs.GameOfLifeHandler, request, response)
-	x := false
-	go func() {
+	client.Call(stubs.GameOfLifeHandler, request, response)
+	*newWorld = response.NewState
 
-		client.Call(stubs.GameOfLifeHandler, request, response)
-		x = true
-
-	}()
-
-	ticker := time.NewTicker(time.Second * 2)
-	go func() {
-		select {
-		case <-ticker.C:
-			if *flags {
-				//request.Mutex.Lock()
-				client.Call(stubs.GameOfLifeAlive, request, response)
-				c.events <- TurnComplete{response.Turn}
-				c.events <- AliveCellsCount{response.Turn, response.Alive}
-				//request.Mutex.Unlock()
-			}
-		}
-	}()
-	if x {
-		*newWorld = response.NewState
-	}
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
