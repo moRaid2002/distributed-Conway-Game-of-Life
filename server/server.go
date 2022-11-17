@@ -158,8 +158,11 @@ func main() {
 	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 	rpc.Register(&GameOfLife{})
-	listener, _ := net.Listen("tcp", ":"+*pAddr)
-	defer listener.Close()
-	rpc.Accept(listener)
+	for {
+
+		listener, _ := net.Listen("tcp", ":"+*pAddr)
+		defer listener.Close()
+		rpc.Accept(listener)
+	}
 
 }
