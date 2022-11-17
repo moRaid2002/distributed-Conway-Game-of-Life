@@ -21,11 +21,21 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state chan [][]byte, turn chan int) {
+func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state chan [][]byte, turn chan int, c distributorChannels) {
 	request := stubs.Request{newWorld, p, state, turn}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
 	*newWorld = response.NewState
+	ticker := time.NewTicker(time.Second * 2)
+	go func() {
+		select {
+		case <-ticker.C:
+
+			client.Call(stubs.GameOfLifeAlive, request, response)
+			c.events <- AliveCellsCount{response.Turn, response.Alive}
+
+		}
+	}()
 
 }
 func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distributorChannels, state chan [][]byte, turn chan int) {
@@ -44,17 +54,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	defer client.Close()
 	state := make(chan [][]byte)
 	turn := make(chan int)
-	makeCall(client, newWorld, p, state, turn)
-	ticker := time.NewTicker(time.Second * 2)
-	go func() {
-		select {
-		case <-ticker.C:
-			if *flags {
-				seconds(client, newWorld, p, c, state, turn)
-			}
-
-		}
-	}()
+	makeCall(client, newWorld, p, state, turn, c)
 
 }
 
