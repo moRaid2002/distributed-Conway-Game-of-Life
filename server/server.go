@@ -101,8 +101,9 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 type GameOfLife struct{}
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
-	State := <-req.CurrentState
-	Turn := <-req.CurrentTurn
+	fmt.Println("enter Alive")
+	State := req.CurrentState
+	Turn := req.CurrentTurn
 	count := 0
 	for h := 0; h < req.P.ImageHeight; h++ {
 		for w := 0; w < req.P.ImageWidth; w++ {
@@ -141,8 +142,8 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
-		req.CurrentState <- *req.CurrentStates
-		req.CurrentTurn <- turns
+		req.CurrentState = *req.CurrentStates
+		req.CurrentTurn = turns
 
 	}
 
