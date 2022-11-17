@@ -114,6 +114,7 @@ func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error
 	}
 	res.Alive = count
 	res.Turn = Turn
+	fmt.Println("done Alive")
 	return
 }
 
