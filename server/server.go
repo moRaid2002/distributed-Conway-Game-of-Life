@@ -100,8 +100,26 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 
 type GameOfLife struct{}
 
+func (s *GameOfLife) GetAlive(currentState <-chan [][]byte, currentTurn <-chan int, req stubs.Request, res *stubs.Response) (err error) {
+	State := <-currentState
+	Turn := <-currentTurn
+	count := 0
+	for h := 0; h < req.P.ImageHeight; h++ {
+		for w := 0; w < req.P.ImageWidth; w++ {
+			if State[h][w] == 255 {
+				count++
+			}
+		}
+	}
+	res.Alive = count
+	res.Turn = Turn
+	return
+}
+
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
+	currentState := make(chan [][]byte)
+	currentTurn := make(chan int)
 	var chanels []chan [][]byte
 	var newstate [][]byte
 	for threads := 0; threads < req.P.Threads; threads++ {
@@ -124,8 +142,11 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
+		currentState <- *req.CurrentStates
+		currentTurn <- turns
+
 	}
-	res.Out <- 3
+
 	res.NewState = *req.CurrentStates
 
 	return
@@ -140,6 +161,5 @@ func main() {
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
 	rpc.Accept(listener)
-	//GameOfLife{}.EvaluateBoard
 
 }

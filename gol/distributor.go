@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/rpc"
 	"strconv"
+	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
@@ -20,23 +21,37 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, message *[][]byte, p subParams.Params, out chan<- int) {
-	request := stubs.Request{message, p}
+func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params) {
+	request := stubs.Request{newWorld, p}
 	response := new(stubs.Response)
 	client.Call(stubs.GameOfLifeHandler, request, response)
-	*message = response.NewState
-	recieved := <-response.Out
-	out <- recieved
-	//fmt.Println("Responded: " + response.Message)
+	*newWorld = response.NewState
+
+}
+func seconds(client *rpc.Client, newWorld *[][]byte, p subParams.Params, c distributorChannels) {
+	request := stubs.Request{newWorld, p}
+	response := new(stubs.Response)
+	client.Call(stubs.GameOfLifeAlive, request, response)
+	*newWorld = response.NewState
+	c.events <- AliveCellsCount{response.Turn, response.Alive}
+
 }
 
-func client(newWorld *[][]byte, p subParams.Params, server2 string, out chan<- int) {
-	server := flag.String(server2, "54.159.136.37:8030", "IP:port string to connect to as server")
+func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels) {
+	server := flag.String(server2, "44.204.58.69:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
 
-	makeCall(client, newWorld, p, out)
+	makeCall(client, newWorld, p)
+	ticker := time.NewTicker(time.Second * 2)
+	go func() {
+		select {
+		case <-ticker.C:
+			seconds(client, newWorld, p, c)
+
+		}
+	}()
 
 }
 
@@ -72,9 +87,8 @@ func distributor(p Params, c distributorChannels) {
 
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	out := make(chan int)
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), out)
-	//recieved := <-out
-	//fmt.Println(recieved)
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads))
+
 	go func() {
 		select {
 		case <-out:
