@@ -20,11 +20,15 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, newWorld *[][]byte, p subParams.Params, state [][]byte, turn int, c distributorChannels, flags *bool) {
-	request := stubs.Request{newWorld, p}
-	response := new(stubs.Response)
-	client.Call(stubs.GameOfLifeHandler, request, response)
-	*newWorld = response.NewState
+func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channel chan *rpc.Call) {
+
+	client.Go(stubs.GameOfLifeHandler, req, res, channel)
+
+}
+func Alive(client *rpc.Client, req stubs.Request, res *stubs.Response, c distributorChannels) {
+
+	client.Call(stubs.GameOfLifeAlive, req, res)
+	c.events <- AliveCellsCount{res.Turn, res.Alive}
 
 }
 
@@ -33,9 +37,14 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-	state := *newWorld
-	turn := 0
-	makeCall(client, newWorld, p, state, turn, c, flags)
+	request := stubs.Request{newWorld, p, 0}
+	response := new(stubs.Response)
+	channel := make(chan *rpc.Call)
+	makeCall(client, request, response, channel)
+	select {
+	case <-channel:
+		*newWorld = response.NewState
+	}
 
 }
 
@@ -47,7 +56,6 @@ func distributor(p Params, c distributorChannels) {
 	newWorld := make([][]byte, p.ImageHeight) // creating the empty 2D slice for Height and Width
 	for i := range newWorld {
 		newWorld[i] = make([]byte, p.ImageWidth)
-
 	}
 	//----------------------------------- Input(Reading) of the PGM image --------------------------//
 

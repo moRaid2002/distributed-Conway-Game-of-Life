@@ -11,6 +11,9 @@ import (
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
+var turnC int
+var stateC [][]byte
+
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 func ReverseString(s string, i int) string {
 	time.Sleep(time.Duration(rand.Intn(i)) * time.Second)
@@ -88,7 +91,6 @@ func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][
 			if aliveCell == 3 && newWorld[x][y] == 0 {
 				nextState[x-startX][y] = 255
 			}
-
 		}
 	}
 	return nextState // The reason why you need New World2..... Because if you do not store it to newWorld2 then there could be a cell which is still alive, although it has to be dead.
@@ -102,8 +104,9 @@ type GameOfLife struct{}
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter Alive")
-	State := req.CurrentState
-	Turn := req.CurrentTurn
+	State := stateC
+	Turn := turnC
+
 	count := 0
 	for h := 0; h < req.P.ImageHeight; h++ {
 		for w := 0; w < req.P.ImageWidth; w++ {
@@ -144,8 +147,10 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
-		req.CurrentState = *req.CurrentStates
-		req.CurrentTurn = turns
+		turnC = turns
+		stateC = *req.CurrentStates
+		//req.CurrentState = *req.CurrentStates
+		//req.CurrentTurn = turns
 		//req.Mutex.Unlock()
 
 	}
@@ -156,6 +161,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 }
 
 func main() {
+
 	fmt.Println("working")
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	flag.Parse()

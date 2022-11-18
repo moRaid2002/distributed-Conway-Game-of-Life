@@ -9,9 +9,12 @@ var GameOfLifeAlive = "GameOfLife.GetAlive"
 
 type Response struct {
 	NewState [][]byte
+	Alive    int
+	Turn     int
 }
 
 type Request struct {
 	CurrentStates *[][]byte
 	P             subParams.Params
+	Turn          int
 }
