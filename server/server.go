@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net"
 	"net/rpc"
+	"sync"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
@@ -13,6 +14,7 @@ import (
 
 var turnC int
 var stateC [][]byte
+var Mutex = sync.Mutex{}
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 func ReverseString(s string, i int) string {
@@ -103,6 +105,7 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 type GameOfLife struct{}
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
+	Mutex.Lock()
 	fmt.Println("enter Alive")
 	State := stateC
 	Turn := turnC
@@ -118,6 +121,7 @@ func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error
 	res.Alive = count
 	res.Turn = Turn
 	fmt.Println("done Alive")
+	Mutex.Unlock()
 	return
 }
 
@@ -144,11 +148,13 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 			newstate = append(newstate, received...)
 		}
 		//req.Mutex.Lock()
+		Mutex.Lock()
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
 		turnC = turns
 		stateC = *req.CurrentStates
+		Mutex.Unlock()
 		//req.CurrentState = *req.CurrentStates
 		//req.CurrentTurn = turns
 		//req.Mutex.Unlock()

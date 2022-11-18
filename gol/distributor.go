@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/rpc"
 	"strconv"
+	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
@@ -25,22 +26,33 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channe
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
-func Alive(client *rpc.Client, req stubs.Request, res *stubs.Response, c distributorChannels) {
+func Alive(client *rpc.Client, req stubs.Request, res *stubs.Response, c distributorChannels, flags *bool) {
 
 	client.Call(stubs.GameOfLifeAlive, req, res)
-	c.events <- AliveCellsCount{res.Turn, res.Alive}
+	if *flags {
+		c.events <- TurnComplete{res.Turn}
+		c.events <- AliveCellsCount{res.Turn, res.Alive}
+	}
 
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "44.204.58.69:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "54.87.146.193:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
 	request := stubs.Request{newWorld, p, 0}
 	response := new(stubs.Response)
-	channel := make(chan *rpc.Call)
+	channel := make(chan *rpc.Call, 10)
 	makeCall(client, request, response, channel)
+	ticker := time.NewTicker(time.Second * 2)
+	go func() {
+
+		select {
+		case <-ticker.C:
+			Alive(client, request, response, c, flags)
+		}
+	}()
 	select {
 	case <-channel:
 		*newWorld = response.NewState
@@ -50,9 +62,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 
 // distributor divides the work between workers and interacts with other goroutines.
 func distributor(p Params, c distributorChannels) {
-
 	// TODO: Create a 2D slice to store the world.
-
 	newWorld := make([][]byte, p.ImageHeight) // creating the empty 2D slice for Height and Width
 	for i := range newWorld {
 		newWorld[i] = make([]byte, p.ImageWidth)
