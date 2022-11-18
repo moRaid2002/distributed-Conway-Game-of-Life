@@ -21,13 +21,20 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channel chan *rpc.Call) {
-
+func makeCall(client *rpc.Client, channel chan *rpc.Call, newWorld *[][]byte, p subParams.Params) {
+	req := stubs.Request{newWorld, p, 0}
+	res := new(stubs.Response)
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
+	select {
+	case <-channel:
+		*newWorld = res.NewState
+	}
 
 }
-func Alive(client *rpc.Client, req stubs.Request, res *stubs.Response, c distributorChannels, flags *bool) {
-
+func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
+	fmt.Println("Alive")
+	req := stubs.Request{newWorld, p, 0}
+	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
 	if *flags {
 		c.events <- TurnComplete{res.Turn}
@@ -41,22 +48,18 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-	request := stubs.Request{newWorld, p, 0}
-	response := new(stubs.Response)
+
 	channel := make(chan *rpc.Call, 10)
-	makeCall(client, request, response, channel)
+	makeCall(client, channel, newWorld, p)
 	ticker := time.NewTicker(time.Second * 2)
 	go func() {
 
 		select {
 		case <-ticker.C:
-			Alive(client, request, response, c, flags)
+			fmt.Println("enter")
+			Alive(client, c, flags, newWorld, p)
 		}
 	}()
-	select {
-	case <-channel:
-		*newWorld = response.NewState
-	}
 
 }
 
