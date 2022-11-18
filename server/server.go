@@ -122,6 +122,10 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 
 	return
 }
+func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
+	res.NewState = stateC
+	return
+}
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
 	Mutex.Lock()

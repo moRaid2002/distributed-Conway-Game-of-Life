@@ -27,6 +27,20 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
+func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
+
+	req := stubs.Request{newWorld, p, 0, ""}
+	res := new(stubs.Response)
+	client.Call(stubs.GameOfLifeLiveView, req, res)
+	for h := 0; h < p.ImageHeight; h++ {
+		for w := 0; w < p.ImageWidth; w++ {
+			if res.NewState[h][w] == 255 {
+				c.events <- CellFlipped{0, util.Cell{w, h}}
+			}
+		}
+	}
+
+}
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
 	req := stubs.Request{newWorld, p, 0, ""}
@@ -69,6 +83,11 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	ticker := time.NewTicker(time.Second * 2)
 	go func() {
 		for {
+			LiveView(client, c, newWorld, p)
+		}
+	}()
+	go func() {
+		for {
 			receivingKeyPress := <-c.keyPresses
 			switch receivingKeyPress {
 			case 'p':
@@ -77,7 +96,8 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				Press(client, "s", newWorld, p, c)
 			case 'q':
 
-				// This terminates the program.
+			case 'k':
+
 			}
 
 		}

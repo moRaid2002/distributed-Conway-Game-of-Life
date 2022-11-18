@@ -7,6 +7,7 @@ import (
 var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
 var GameOfLifeAlive = "GameOfLife.GetAlive"
 var GameOfLifePress = "GameOfLife.Key"
+var GameOfLifeLiveView = "GameOfLife.Out"
 
 type Response struct {
 	NewState [][]byte
