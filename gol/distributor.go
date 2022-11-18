@@ -11,6 +11,7 @@ import (
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
+//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
 type distributorChannels struct {
 	events     chan<- Event
 	ioCommand  chan<- ioCommand
@@ -37,11 +38,22 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 	}
 
 }
-func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.Params) {
+func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.Params, c distributorChannels) {
 
 	req := stubs.Request{newWorld, p, 0, keypress}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifePress, req, res)
+	if keypress == "s" {
+		c.ioCommand <- ioOutput
+		filename2 := "current-state-s"
+		c.ioFilename <- filename2
+		for h := 0; h < p.ImageHeight; h++ {
+			for w := 0; w < p.ImageWidth; w++ {
+				c.ioOutput <- res.NewState[h][w]
+			}
+		}
+
+	}
 
 }
 
@@ -60,9 +72,9 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			receivingKeyPress := <-c.keyPresses
 			switch receivingKeyPress {
 			case 'p':
-				Press(client, "p", newWorld, p)
+				Press(client, "p", newWorld, p, c)
 			case 's':
-
+				Press(client, "s", newWorld, p, c)
 			case 'q':
 
 				// This terminates the program.

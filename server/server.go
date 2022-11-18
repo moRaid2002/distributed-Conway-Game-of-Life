@@ -116,6 +116,8 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 			Mutex.Unlock()
 		}
 		index++
+	case "s":
+		res.NewState = stateC
 	}
 
 	return
