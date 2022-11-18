@@ -10,10 +10,11 @@ var GameOfLifePress = "GameOfLife.Key"
 var GameOfLifeLiveView = "GameOfLife.Out"
 
 type Response struct {
-	NewState [][]byte
-	Alive    int
-	Turn     int
-	Flag     bool
+	NewState      [][]byte
+	PreviousState [][]byte
+	Alive         int
+	Turn          int
+	Flag          bool
 }
 
 type Request struct {

@@ -35,7 +35,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	if res.Flag {
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
-				if res.NewState[h][w] == 255 {
+				if res.NewState[h][w] != res.PreviousState[h][w] {
 					c.events <- CellFlipped{0, util.Cell{w, h}}
 				}
 			}

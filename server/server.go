@@ -14,6 +14,7 @@ import (
 
 var turnC int
 var stateC [][]byte
+var stateP [][]byte
 var Mutex = sync.Mutex{}
 var index = 0
 var lastTurnOutput = 0
@@ -126,6 +127,7 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
 	if lastTurnOutput < turnC {
 		res.NewState = stateC
+		res.PreviousState = stateP
 		res.Flag = true
 	} else {
 
@@ -180,6 +182,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		}
 		//req.Mutex.Lock()
 		Mutex.Lock()
+		stateP = *req.CurrentStates
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
