@@ -21,19 +21,14 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-func makeCall(client *rpc.Client, channel chan *rpc.Call, newWorld *[][]byte, p subParams.Params) {
-	req := stubs.Request{newWorld, p, 0}
-	res := new(stubs.Response)
+func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
+
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
-	select {
-	case <-channel:
-		*newWorld = res.NewState
-	}
 
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
-	fmt.Println("Alive")
-	req := stubs.Request{newWorld, p, 0}
+
+	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
 	if *flags {
@@ -42,24 +37,53 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 	}
 
 }
+func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.Params) {
+
+	req := stubs.Request{newWorld, p, 0, keypress}
+	res := new(stubs.Response)
+	client.Call(stubs.GameOfLifePress, req, res)
+
+}
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
 	server := flag.String(server2, "54.87.146.193:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-
+	req := stubs.Request{newWorld, p, 0, ""}
+	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
-	makeCall(client, channel, newWorld, p)
+	makeCall(client, channel, req, res)
 	ticker := time.NewTicker(time.Second * 2)
 	go func() {
+		for {
+			receivingKeyPress := <-c.keyPresses
+			switch receivingKeyPress {
+			case 'p':
+				Press(client, "p", newWorld, p)
+			case 's':
 
-		select {
-		case <-ticker.C:
-			fmt.Println("enter")
-			Alive(client, c, flags, newWorld, p)
+			case 'q':
+
+				// This terminates the program.
+			}
+
+		}
+
+	}()
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+
+				Alive(client, c, flags, newWorld, p)
+			}
 		}
 	}()
+	select {
+	case <-channel:
+		*newWorld = res.NewState
+	}
 
 }
 

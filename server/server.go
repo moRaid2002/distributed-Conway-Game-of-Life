@@ -15,6 +15,7 @@ import (
 var turnC int
 var stateC [][]byte
 var Mutex = sync.Mutex{}
+var index = 0
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 func ReverseString(s string, i int) string {
@@ -103,6 +104,22 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 }
 
 type GameOfLife struct{}
+
+func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
+	switch req.Keypress {
+	case "p":
+		if index%2 == 0 {
+			fmt.Println("pausing")
+			Mutex.Lock()
+		} else {
+			fmt.Println("continue")
+			Mutex.Unlock()
+		}
+		index++
+	}
+
+	return
+}
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
 	Mutex.Lock()

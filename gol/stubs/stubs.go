@@ -6,6 +6,7 @@ import (
 
 var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
 var GameOfLifeAlive = "GameOfLife.GetAlive"
+var GameOfLifePress = "GameOfLife.Key"
 
 type Response struct {
 	NewState [][]byte
@@ -17,4 +18,5 @@ type Request struct {
 	CurrentStates *[][]byte
 	P             subParams.Params
 	Turn          int
+	Keypress      string
 }
