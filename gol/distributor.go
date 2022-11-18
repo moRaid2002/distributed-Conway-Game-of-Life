@@ -32,14 +32,15 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeLiveView, req, res)
-	for h := 0; h < p.ImageHeight; h++ {
-		for w := 0; w < p.ImageWidth; w++ {
-			if res.NewState[h][w] == 255 {
-				c.events <- CellFlipped{0, util.Cell{w, h}}
+	if res.Flag {
+		for h := 0; h < p.ImageHeight; h++ {
+			for w := 0; w < p.ImageWidth; w++ {
+				if res.NewState[h][w] == 255 {
+					c.events <- CellFlipped{0, util.Cell{w, h}}
+				}
 			}
 		}
 	}
-
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 

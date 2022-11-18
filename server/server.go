@@ -16,6 +16,7 @@ var turnC int
 var stateC [][]byte
 var Mutex = sync.Mutex{}
 var index = 0
+var lastTurnOutput = 0
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 func ReverseString(s string, i int) string {
@@ -123,7 +124,14 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 	return
 }
 func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
-	res.NewState = stateC
+	if lastTurnOutput < turnC {
+		res.NewState = stateC
+		res.Flag = true
+	} else {
+
+		res.Flag = false
+
+	}
 	return
 }
 

@@ -13,6 +13,7 @@ type Response struct {
 	NewState [][]byte
 	Alive    int
 	Turn     int
+	Flag     bool
 }
 
 type Request struct {
