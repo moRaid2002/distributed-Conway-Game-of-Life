@@ -174,6 +174,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		chanels = append(chanels, make(chan [][]byte))
 	}
 	turns := 0
+	end = false
 	for turns < req.P.Turns && !end {
 
 		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
