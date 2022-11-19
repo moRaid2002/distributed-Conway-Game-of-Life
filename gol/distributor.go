@@ -22,6 +22,8 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
+var Lastturn = 0
+
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
@@ -47,7 +49,8 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
-	if *flags && res.Turn != 0 {
+	if *flags && res.Turn > Lastturn {
+		Lastturn = res.Turn
 		c.events <- TurnComplete{res.Turn}
 		c.events <- AliveCellsCount{res.Turn, res.Alive}
 	}
@@ -92,6 +95,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)
 	ticker := time.NewTicker(time.Second * 2)
+
 	go func() {
 		for {
 			LiveView(client, c, newWorld, p)
@@ -105,9 +109,11 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				Press(client, "p", newWorld, p, c)
 			case 's':
 				Press(client, "s", newWorld, p, c)
+
 			case 'q':
 				fmt.Println("stopping client")
 				StopClient(client)
+
 			case 'k':
 				fmt.Println("stopping")
 				Stop(client)
@@ -121,7 +127,6 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 		for {
 			select {
 			case <-ticker.C:
-
 				Alive(client, c, flags, newWorld, p)
 			}
 		}
