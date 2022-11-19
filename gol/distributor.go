@@ -103,6 +103,8 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			case 'q':
 
 			case 'k':
+				fmt.Println("stopping")
+				Stop(client)
 
 			}
 

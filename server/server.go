@@ -126,6 +126,7 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 	return
 }
 func (s *GameOfLife) Stop(req stubs.Request, res *stubs.Response) (err error) {
+	fmt.Println("force stop")
 	end = true
 	return
 }
