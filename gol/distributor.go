@@ -22,6 +22,8 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
+var Past [][]byte
+
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
@@ -40,6 +42,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 				}
 			}
 		}
+
 	}
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
@@ -144,7 +147,7 @@ func distributor(p Params, c distributorChannels) {
 			}
 		}
 	}
-
+	Past = newWorld
 	// TODO: Execute all turns of the Game of Life.
 	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}

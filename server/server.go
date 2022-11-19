@@ -12,7 +12,7 @@ import (
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
-var turnC int
+var turns int
 var stateC [][]byte
 var stateP [][]byte
 var Mutex = sync.Mutex{}
@@ -20,14 +20,6 @@ var index = 0
 var lastTurnOutput = 0
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
-func ReverseString(s string, i int) string {
-	time.Sleep(time.Duration(rand.Intn(i)) * time.Second)
-	runes := []rune(s)
-	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-		runes[i], runes[j] = runes[j], runes[i]
-	}
-	return string(runes)
-}
 
 func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
@@ -125,11 +117,13 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 	return
 }
 func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
-	if lastTurnOutput < turnC {
+	if lastTurnOutput < turns {
+		Mutex.Lock()
 		res.NewState = stateC
 		res.PreviousState = stateP
 		res.Flag = true
-		lastTurnOutput++
+		lastTurnOutput = turns
+		Mutex.Unlock()
 	} else {
 
 		res.Flag = false
@@ -142,7 +136,6 @@ func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error
 	Mutex.Lock()
 	fmt.Println("enter Alive")
 	State := stateC
-	Turn := turnC
 
 	count := 0
 	for h := 0; h < req.P.ImageHeight; h++ {
@@ -153,7 +146,7 @@ func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error
 		}
 	}
 	res.Alive = count
-	res.Turn = Turn
+	res.Turn = turns
 	fmt.Println("done Alive")
 	Mutex.Unlock()
 	return
@@ -167,9 +160,9 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	for threads := 0; threads < req.P.Threads; threads++ {
 		chanels = append(chanels, make(chan [][]byte))
 	}
-	turns := 0
+	turns = 0
 	for turns < req.P.Turns {
-
+		Mutex.Lock()
 		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
 			if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
 				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), req.P.ImageHeight)
@@ -181,19 +174,13 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 			received := <-chanels[threads] // Receiving the thread and append them together.
 			newstate = append(newstate, received...)
 		}
-		//req.Mutex.Lock()
-		Mutex.Lock()
+
 		stateP = *req.CurrentStates
 		*req.CurrentStates = newstate
 		newstate = nil
 		turns++
-		turnC = turns
 		stateC = *req.CurrentStates
 		Mutex.Unlock()
-		//req.CurrentState = *req.CurrentStates
-		//req.CurrentTurn = turns
-		//req.Mutex.Unlock()
-
 	}
 
 	res.NewState = *req.CurrentStates
