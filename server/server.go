@@ -152,23 +152,26 @@ func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
 }
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
-	Mutex.Lock()
-	fmt.Println("enter Alive")
-	State := stateC
-	Turn := turnC
 
-	count := 0
-	for h := 0; h < req.P.ImageHeight; h++ {
-		for w := 0; w < req.P.ImageWidth; w++ {
-			if State[h][w] == 255 {
-				count++
+	if !simiend {
+		Mutex.Lock()
+		fmt.Println("enter Alive")
+		State := stateC
+		Turn := turnC
+
+		count := 0
+		for h := 0; h < req.P.ImageHeight; h++ {
+			for w := 0; w < req.P.ImageWidth; w++ {
+				if State[h][w] == 255 {
+					count++
+				}
 			}
 		}
+		res.Alive = count
+		res.Turn = Turn
+		fmt.Println("done Alive")
+		Mutex.Unlock()
 	}
-	res.Alive = count
-	res.Turn = Turn
-	fmt.Println("done Alive")
-	Mutex.Unlock()
 	return
 }
 
