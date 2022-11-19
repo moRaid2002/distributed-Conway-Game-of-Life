@@ -133,11 +133,7 @@ func (s *GameOfLife) Stop(req stubs.Request, res *stubs.Response) (err error) {
 }
 func (s *GameOfLife) StopClient(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println(" stop client ")
-	turnC = 0
-	stateC = nil
-	stateP = nil
-	index = 0
-	lastTurnOutput = 0
+
 	simiend = true
 	return
 }
@@ -186,6 +182,11 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	}
 	turns := 0
 	end = false
+	if simiend {
+		turns = turnC
+		*req.CurrentStates = stateC
+		simiend = false
+	}
 	for turns < req.P.Turns && !end && !simiend {
 
 		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
@@ -213,7 +214,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		//req.Mutex.Unlock()
 
 	}
-	simiend = false
+
 	res.NewState = *req.CurrentStates
 
 	return
