@@ -213,7 +213,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		//req.Mutex.Unlock()
 
 	}
-
+	simiend = false
 	res.NewState = *req.CurrentStates
 
 	return
