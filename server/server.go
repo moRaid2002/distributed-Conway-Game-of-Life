@@ -219,7 +219,15 @@ func main() {
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
 	fmt.Println("2")
+	go func() {
+		for {
+			if end {
+				listener.Close()
+			}
+		}
+	}()
 	rpc.Accept(listener)
+
 	fmt.Println("end")
 
 }
