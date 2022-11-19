@@ -22,9 +22,6 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-var Past [][]byte
-var chanelOpen = true
-
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
@@ -35,7 +32,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeLiveView, req, res)
-	if res.Flag && chanelOpen {
+	if res.Flag {
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
 				if res.NewState[h][w] != res.PreviousState[h][w] {
@@ -43,15 +40,14 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 				}
 			}
 		}
-
 	}
 }
-func Alive(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
+func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
-	if chanelOpen {
+	if *flags {
 		c.events <- TurnComplete{res.Turn}
 		c.events <- AliveCellsCount{res.Turn, res.Alive}
 	}
@@ -76,8 +72,8 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 
 }
 
-func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels) {
-	server := flag.String(server2, "3.95.244.149:8030", "IP:port string to connect to as server")
+func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
+	server := flag.String(server2, "54.87.146.193:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -113,7 +109,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			select {
 			case <-ticker.C:
 
-				Alive(client, c, newWorld, p)
+				Alive(client, c, flags, newWorld, p)
 			}
 		}
 	}()
@@ -148,12 +144,12 @@ func distributor(p Params, c distributorChannels) {
 			}
 		}
 	}
-	Past = newWorld
+
 	// TODO: Execute all turns of the Game of Life.
-	//chanelOpen = true
+	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	out := make(chan int)
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c)
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
 	go func() {
 		select {
@@ -196,5 +192,5 @@ func distributor(p Params, c distributorChannels) {
 
 	// Close the channel to stop the SDL goroutine gracefully. Removing may cause deadlock.
 	close(c.events)
-	chanelOpen = false
+	flag = false
 }
