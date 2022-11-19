@@ -11,7 +11,7 @@ import (
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
-//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
+// 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
 type distributorChannels struct {
 	events     chan<- Event
 	ioCommand  chan<- ioCommand
@@ -27,12 +27,12 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
-func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
+func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params, flags *bool) {
 
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeLiveView, req, res)
-	if res.Flag {
+	if res.Flag && *flags {
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
 				if res.NewState[h][w] != res.PreviousState[h][w] {
@@ -73,7 +73,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "54.87.146.193:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "3.95.244.149:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -84,7 +84,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	ticker := time.NewTicker(time.Second * 2)
 	go func() {
 		for {
-			LiveView(client, c, newWorld, p)
+			LiveView(client, c, newWorld, p, flags)
 		}
 	}()
 	go func() {
