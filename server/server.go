@@ -18,6 +18,7 @@ var stateP [][]byte
 var Mutex = sync.Mutex{}
 var index = 0
 var lastTurnOutput = 0
+var end = false
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 func ReverseString(s string, i int) string {
@@ -124,6 +125,10 @@ func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
 
 	return
 }
+func (s *GameOfLife) Stop(req stubs.Request, res *stubs.Response) (err error) {
+	end = true
+	return
+}
 func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
 	if lastTurnOutput < turnC {
 		res.NewState = stateC
@@ -168,7 +173,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		chanels = append(chanels, make(chan [][]byte))
 	}
 	turns := 0
-	for turns < req.P.Turns {
+	for turns < req.P.Turns && !end {
 
 		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
 			if threads == req.P.Threads-1 { // According to the condition match run the go Routine.

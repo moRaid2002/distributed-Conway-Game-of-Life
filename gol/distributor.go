@@ -71,9 +71,14 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 	}
 
 }
+func Stop(client *rpc.Client) {
+	req := new(stubs.Request)
+	res := new(stubs.Response)
+	client.Call(stubs.GameOfLifeStop, req, res)
+}
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "54.87.146.193:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "3.95.244.149:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
