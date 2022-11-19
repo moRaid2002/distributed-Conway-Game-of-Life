@@ -8,6 +8,7 @@ var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
 var GameOfLifeAlive = "GameOfLife.GetAlive"
 var GameOfLifePress = "GameOfLife.Key"
 var GameOfLifeLiveView = "GameOfLife.Out"
+var GameOfLifeStop = "GameOfLife.Stop"
 
 type Response struct {
 	NewState      [][]byte
