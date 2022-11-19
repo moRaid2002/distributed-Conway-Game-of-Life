@@ -9,6 +9,7 @@ var GameOfLifeAlive = "GameOfLife.GetAlive"
 var GameOfLifePress = "GameOfLife.Key"
 var GameOfLifeLiveView = "GameOfLife.Out"
 var GameOfLifeStop = "GameOfLife.Stop"
+var GameOfLifeClientStop = "GameOfLife.StopClient"
 
 type Response struct {
 	NewState      [][]byte
