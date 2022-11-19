@@ -23,7 +23,7 @@ type distributorChannels struct {
 }
 
 var Past [][]byte
-var chanelOpen bool
+var chanelOpen = true
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
@@ -150,7 +150,7 @@ func distributor(p Params, c distributorChannels) {
 	}
 	Past = newWorld
 	// TODO: Execute all turns of the Game of Life.
-	chanelOpen = true
+	//chanelOpen = true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	out := make(chan int)
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c)
