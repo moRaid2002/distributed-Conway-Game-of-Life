@@ -47,7 +47,7 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
-	if *flags {
+	if *flags && res.Turn != 0 {
 		c.events <- TurnComplete{res.Turn}
 		c.events <- AliveCellsCount{res.Turn, res.Alive}
 	}
