@@ -76,6 +76,11 @@ func Stop(client *rpc.Client) {
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeStop, req, res)
 }
+func StopClient(client *rpc.Client) {
+	req := new(stubs.Request)
+	res := new(stubs.Response)
+	client.Call(stubs.GameOfLifeClientStop, req, res)
+}
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
 	server := flag.String(server2, "3.95.244.149:8030", "IP:port string to connect to as server")
@@ -101,7 +106,8 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			case 's':
 				Press(client, "s", newWorld, p, c)
 			case 'q':
-
+				fmt.Println("stopping client")
+				StopClient(client)
 			case 'k':
 				fmt.Println("stopping")
 				Stop(client)
