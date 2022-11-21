@@ -36,6 +36,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeLiveView, req, res)
 	if res.Flag {
+
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
 				if res.NewState[h][w] != res.PreviousState[h][w] {
@@ -87,7 +88,7 @@ func StopClient(client *rpc.Client) {
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "18.212.194.147:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "127.0.0.1:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -114,15 +115,15 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				Press(client, "s", newWorld, p, c)
 
 			case 'q':
-				mutex.Lock()
+
 				fmt.Println("stopping client")
 				StopClient(client)
-				mutex.Unlock()
+
 			case 'k':
-				mutex.Lock()
+
 				fmt.Println("stopping")
 				Stop(client)
-				mutex.Unlock()
+
 			}
 
 		}
@@ -132,9 +133,9 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 		for {
 			select {
 			case <-ticker.C:
-				mutex.Lock()
+
 				Alive(client, c, flags, newWorld, p)
-				mutex.Unlock()
+
 			}
 		}
 	}(&mutex)
@@ -173,15 +174,8 @@ func distributor(p Params, c distributorChannels) {
 	// TODO: Execute all turns of the Game of Life.
 	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
-	out := make(chan int)
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
-	go func() {
-		select {
-		case <-out:
-			fmt.Println(out)
-		}
-	}()
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 	c.ioCommand <- ioOutput
 	filename = filename + "x" + strconv.Itoa(p.Turns)
