@@ -142,7 +142,7 @@ func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = stateC
 		res.PreviousState = stateP
 		res.Flag = true
-		lastTurnOutput++
+		lastTurnOutput = turnC
 	} else {
 
 		res.Flag = false

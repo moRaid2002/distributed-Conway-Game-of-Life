@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/rpc"
 	"strconv"
+	"sync"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
@@ -31,7 +32,7 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 }
 func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
 
-	req := stubs.Request{newWorld, p, 0, ""}
+	req := stubs.Request{newWorld, p, 0, "", 0, p.ImageHeight}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeLiveView, req, res)
 	if res.Flag {
@@ -46,7 +47,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
-	req := stubs.Request{newWorld, p, 0, ""}
+	req := stubs.Request{newWorld, p, 0, "", 0, p.ImageHeight}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
 	if *flags && res.Turn > Lastturn {
@@ -58,7 +59,7 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 }
 func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.Params, c distributorChannels) {
 
-	req := stubs.Request{newWorld, p, 0, keypress}
+	req := stubs.Request{newWorld, p, 0, keypress, 0, p.ImageHeight}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifePress, req, res)
 	if keypress == "s" {
@@ -90,18 +91,20 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-	req := stubs.Request{newWorld, p, 0, ""}
+	req := stubs.Request{newWorld, p, 0, "", 0, p.ImageHeight}
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)
 	ticker := time.NewTicker(time.Second * 2)
-
-	go func() {
+	mutex := sync.Mutex{}
+	go func(flags *bool) {
 		for {
-			LiveView(client, c, newWorld, p)
+			if *flags {
+				LiveView(client, c, newWorld, p)
+			}
 		}
-	}()
-	go func() {
+	}(flags)
+	go func(mutex *sync.Mutex) {
 		for {
 			receivingKeyPress := <-c.keyPresses
 			switch receivingKeyPress {
@@ -111,26 +114,30 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				Press(client, "s", newWorld, p, c)
 
 			case 'q':
+				mutex.Lock()
 				fmt.Println("stopping client")
 				StopClient(client)
-
+				mutex.Unlock()
 			case 'k':
+				mutex.Lock()
 				fmt.Println("stopping")
 				Stop(client)
-
+				mutex.Unlock()
 			}
 
 		}
 
-	}()
-	go func() {
+	}(&mutex)
+	go func(mutex *sync.Mutex) {
 		for {
 			select {
 			case <-ticker.C:
+				mutex.Lock()
 				Alive(client, c, flags, newWorld, p)
+				mutex.Unlock()
 			}
 		}
-	}()
+	}(&mutex)
 	select {
 	case <-channel:
 		*newWorld = res.NewState

@@ -24,4 +24,6 @@ type Request struct {
 	P             subParams.Params
 	Turn          int
 	Keypress      string
+	Start         int
+	End           int
 }
