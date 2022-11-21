@@ -49,8 +49,8 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeAlive, req, res)
-	if *flags && res.Turn > Lastturn {
-		Lastturn = res.Turn
+	if *flags {
+
 		c.events <- TurnComplete{res.Turn}
 		c.events <- AliveCellsCount{res.Turn, res.Alive}
 	}
@@ -86,14 +86,18 @@ func StopClient(client *rpc.Client) {
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "3.95.244.149:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "18.212.194.147:8030", "IP:port string to connect to as server")
+	//serverTwo := flag.String(server2, "18.204.208.227:8030", "IP:port string to connect to as servertwo")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
+	//client2, _ := rpc.Dial("tcp", *serverTwo)
 	defer client.Close()
+	//defer client2.Close()
 	req := stubs.Request{newWorld, p, 0, ""}
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)
+	//makeCall(client2, channel, req, res)
 	ticker := time.NewTicker(time.Second * 2)
 
 	go func() {
