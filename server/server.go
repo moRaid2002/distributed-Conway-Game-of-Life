@@ -153,7 +153,7 @@ func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
 
 func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
 
-	if !simiend && turnC != 0 {
+	if !simiend {
 		Mutex.Lock()
 		fmt.Println("enter Alive")
 		State := stateC
