@@ -28,4 +28,5 @@ type Request struct {
 	Keypress      string
 	NumberAWS     int
 	Offset        int
+	Server        int
 }

@@ -99,7 +99,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		chanels = append(chanels, make(chan [][]byte))
 	}
 	x := 0
-	if req.NumberAWS%2 != 0 {
+	if req.NumberAWS%2 != 0 && req.Server == req.NumberAWS {
 		x = 1
 	}
 
