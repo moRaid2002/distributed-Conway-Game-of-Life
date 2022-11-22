@@ -2,6 +2,7 @@ package gol
 
 import (
 	"flag"
+	"fmt"
 	"net/rpc"
 	"strconv"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
@@ -139,6 +140,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	select {
 	case <-channel:
 		*newWorld = res.NewState
+		fmt.Println(res.NewState)
 	}
 
 }

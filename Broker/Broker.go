@@ -38,7 +38,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	response := new(stubs.Response)
 	response2 := new(stubs.Response)
 	for turns := 0; turns < req.P.Turns; turns++ {
-		request := stubs.Request{newState, req.P, 0, "", 0, req.P.ImageHeight}
+		request := stubs.Request{newState, req.P, 0, "", 2, req.P.ImageHeight}
 		makeCall(client, request, response)
 		makeCall(client2, request, response2)
 
