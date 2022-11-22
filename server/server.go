@@ -100,7 +100,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	}
 	x := 0
 	if req.NumberAWS%2 != 0 && req.Server == req.NumberAWS {
-		x = 1
+		x = req.P.ImageWidth % req.NumberAWS
 	}
 
 	for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
