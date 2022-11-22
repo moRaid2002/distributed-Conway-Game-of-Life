@@ -22,7 +22,10 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 type Broker struct{}
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
-
+	if req.P.Turns == 0 {
+		res.NewState = req.CurrentStates
+		return
+	}
 	server := flag.String("server"+strconv.Itoa(x), "44.201.122.214:8030", "IP:port string to connect to as server")
 	x++
 	flag.Parse()
@@ -32,10 +35,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	response := new(stubs.Response)
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 0, req.P.ImageHeight}
+		fmt.Println("calling", turns)
 		makeCall(client, request, response)
-		res.NewState = response.NewState
+
 		newState = response.NewState
 	}
+	res.NewState = response.NewState
 	return
 }
 

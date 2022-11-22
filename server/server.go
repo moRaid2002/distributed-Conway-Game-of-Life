@@ -6,20 +6,10 @@ import (
 	"math/rand"
 	"net"
 	"net/rpc"
-	"sync"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
-
-var turnC int
-var stateC [][]byte
-var stateP [][]byte
-var Mutex = sync.Mutex{}
-var index = 0
-var lastTurnOutput = 0
-var end = false
-var simiend = false
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
 
@@ -101,72 +91,6 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 
 type GameOfLife struct{}
 
-func (s *GameOfLife) Key(req stubs.Request, res *stubs.Response) (err error) {
-	switch req.Keypress {
-	case "p":
-		if index%2 == 0 {
-			fmt.Println("pausing")
-			Mutex.Lock()
-		} else {
-			fmt.Println("continue")
-			Mutex.Unlock()
-		}
-		index++
-	case "s":
-		res.NewState = stateC
-	}
-
-	return
-}
-func (s *GameOfLife) Stop(req stubs.Request, res *stubs.Response) (err error) {
-	fmt.Println("force stop")
-	end = true
-	return
-}
-func (s *GameOfLife) StopClient(req stubs.Request, res *stubs.Response) (err error) {
-	fmt.Println(" stop client ")
-
-	simiend = true
-	return
-}
-func (s *GameOfLife) Out(req stubs.Request, res *stubs.Response) (err error) {
-	if lastTurnOutput < turnC {
-		res.NewState = stateC
-		res.PreviousState = stateP
-		res.Flag = true
-		lastTurnOutput = turnC
-	} else {
-
-		res.Flag = false
-
-	}
-	return
-}
-
-func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error) {
-
-	if !simiend {
-		Mutex.Lock()
-		fmt.Println("enter Alive")
-		State := stateC
-		Turn := turnC
-
-		count := 0
-		for h := 0; h < req.P.ImageHeight; h++ {
-			for w := 0; w < req.P.ImageWidth; w++ {
-				if State[h][w] == 255 {
-					count++
-				}
-			}
-		}
-		res.Alive = count
-		res.Turn = Turn
-		fmt.Println("done Alive")
-		Mutex.Unlock()
-	}
-	return
-}
-
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
 	var chanels []chan [][]byte
@@ -186,9 +110,8 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		received := <-chanels[threads] // Receiving the thread and append them together.
 		newstate = append(newstate, received...)
 	}
-	Mutex.Lock()
+
 	req.CurrentStates = newstate
-	Mutex.Unlock()
 
 	res.NewState = req.CurrentStates
 
@@ -196,25 +119,13 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 }
 
 func main() {
-
 	fmt.Println("working")
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 	rpc.Register(&GameOfLife{})
-	fmt.Println("1")
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
-	fmt.Println("2")
-	go func() {
-		for {
-			if end {
-				listener.Close()
-			}
-		}
-	}()
 	rpc.Accept(listener)
-
 	fmt.Println("end")
-
 }
