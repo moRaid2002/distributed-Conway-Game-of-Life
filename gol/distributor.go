@@ -115,15 +115,15 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				Press(client, "s", newWorld, p, c)
 
 			case 'q':
-
+				mutex.Lock()
 				fmt.Println("stopping client")
 				StopClient(client)
-
+				mutex.Unlock()
 			case 'k':
-
+				mutex.Lock()
 				fmt.Println("stopping")
 				Stop(client)
-
+				mutex.Unlock()
 			}
 
 		}
@@ -133,9 +133,9 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 		for {
 			select {
 			case <-ticker.C:
-
+				mutex.Lock()
 				Alive(client, c, flags, newWorld, p)
-
+				mutex.Unlock()
 			}
 		}
 	}(&mutex)

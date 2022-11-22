@@ -177,7 +177,6 @@ func (s *GameOfLife) GetAlive(req stubs.Request, res *stubs.Response) (err error
 
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
-
 	var chanels []chan [][]byte
 	var newstate [][]byte
 	for threads := 0; threads < req.P.Threads; threads++ {
@@ -203,7 +202,6 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 			received := <-chanels[threads] // Receiving the thread and append them together.
 			newstate = append(newstate, received...)
 		}
-		//req.Mutex.Lock()
 		Mutex.Lock()
 		stateP = *req.CurrentStates
 		*req.CurrentStates = newstate
@@ -212,10 +210,6 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 		turnC = turns
 		stateC = *req.CurrentStates
 		Mutex.Unlock()
-		//req.CurrentState = *req.CurrentStates
-		//req.CurrentTurn = turns
-		//req.Mutex.Unlock()
-
 	}
 
 	res.NewState = *req.CurrentStates
