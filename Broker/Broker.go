@@ -53,7 +53,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		makeCall(client2, request2, response2)
 		makeCall(client3, request3, response3)
 		makeCall(client4, request4, response4)
-		fmt.Println(len(response.NewState), len(response2.NewState), len(response3.NewState), len(response4.NewState))
+		
 		newState = append(response.NewState, response2.NewState...)
 		newState = append(newState, response3.NewState...)
 		newState = append(newState, response4.NewState...)
