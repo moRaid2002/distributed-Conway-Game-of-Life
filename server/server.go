@@ -114,7 +114,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	req.CurrentStates = newstate
 
 	res.NewState = req.CurrentStates
-
+	fmt.Println("done")
 	return
 }
 
