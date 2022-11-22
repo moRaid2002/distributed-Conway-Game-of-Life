@@ -28,10 +28,14 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-	request := stubs.Request{req.CurrentStates, req.P, 0, "", 0, req.P.ImageHeight}
+
 	response := new(stubs.Response)
-	makeCall(client, request, response)
-	res.NewState = response.NewState
+	for turns := 0; turns < req.P.Turns; turns++ {
+		request := stubs.Request{req.CurrentStates, req.P, 0, "", 0, req.P.ImageHeight}
+		makeCall(client, request, response)
+		res.NewState = response.NewState
+		*req.CurrentStates = res.NewState
+	}
 	return
 }
 

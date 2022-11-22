@@ -174,35 +174,21 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	for threads := 0; threads < req.P.Threads; threads++ {
 		chanels = append(chanels, make(chan [][]byte))
 	}
-	turns := 0
-	end = false
-	if simiend {
-		turns = turnC
-		*req.CurrentStates = stateC
-		simiend = false
-	}
-	for turns < req.P.Turns && !end && !simiend {
 
-		for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
-			if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
-				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), req.P.ImageHeight)
-			} else {
-				go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), (threads+1)*int(req.P.ImageHeight/req.P.Threads))
-			}
+	for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
+		if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
+			go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), req.P.ImageHeight)
+		} else {
+			go worker(req.P, *req.CurrentStates, chanels[threads], (threads)*int(req.P.ImageHeight/req.P.Threads), (threads+1)*int(req.P.ImageHeight/req.P.Threads))
 		}
-		for threads := 0; threads < req.P.Threads; threads++ {
-			received := <-chanels[threads] // Receiving the thread and append them together.
-			newstate = append(newstate, received...)
-		}
-		Mutex.Lock()
-		stateP = *req.CurrentStates
-		*req.CurrentStates = newstate
-		newstate = nil
-		turns++
-		turnC = turns
-		stateC = *req.CurrentStates
-		Mutex.Unlock()
 	}
+	for threads := 0; threads < req.P.Threads; threads++ {
+		received := <-chanels[threads] // Receiving the thread and append them together.
+		newstate = append(newstate, received...)
+	}
+	Mutex.Lock()
+	*req.CurrentStates = newstate
+	Mutex.Unlock()
 
 	res.NewState = *req.CurrentStates
 
