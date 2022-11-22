@@ -92,7 +92,7 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 type GameOfLife struct{}
 
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
-	
+
 	var chanels []chan [][]byte
 	var newstate [][]byte
 	for threads := 0; threads < req.P.Threads; threads++ {

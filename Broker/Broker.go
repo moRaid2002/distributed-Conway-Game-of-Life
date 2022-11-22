@@ -26,16 +26,21 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = req.CurrentStates
 		return
 	}
-	server := flag.String("server"+strconv.Itoa(x), "44.201.122.214:8030", "IP:port string to connect to as server")
+	server := flag.String("server-1-"+strconv.Itoa(x), "44.201.122.214:8030", "IP:port string to connect to as server")
+	server2 := flag.String("server-2-"+strconv.Itoa(x), "54.90.210.50:8030", "IP:port string to connect to as server")
 	x++
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
+	client2, _ := rpc.Dial("tcp", *server2)
 	defer client.Close()
+	defer client2.Close()
 	newState := req.CurrentStates
 	response := new(stubs.Response)
+	response2 := new(stubs.Response)
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 0, req.P.ImageHeight}
 		makeCall(client, request, response)
+		makeCall(client2, request, response2)
 
 		newState = response.NewState
 	}
