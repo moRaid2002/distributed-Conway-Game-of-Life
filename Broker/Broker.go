@@ -46,7 +46,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		newState = append(response.NewState, response2.NewState...)
 	}
-	res.NewState = response.NewState
+	res.NewState = newState
 	return
 }
 
