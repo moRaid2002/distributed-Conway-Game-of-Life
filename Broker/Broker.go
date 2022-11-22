@@ -44,7 +44,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
 		request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}
 		request3 := stubs.Request{newState, req.P, 0, "", 4, 2 * int(req.P.ImageHeight/4), 3}
-		request4 := stubs.Request{newState, req.P, 0, "", 4, 4 * int(req.P.ImageHeight/4), 4}
+		request4 := stubs.Request{newState, req.P, 0, "", 4, 3 * int(req.P.ImageHeight/4), 4}
 		response := new(stubs.Response)
 		response2 := new(stubs.Response)
 		response3 := new(stubs.Response)
