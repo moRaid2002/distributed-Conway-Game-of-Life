@@ -2,11 +2,8 @@ package gol
 
 import (
 	"flag"
-	"fmt"
 	"net/rpc"
 	"strconv"
-	"sync"
-	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
@@ -27,7 +24,7 @@ var Lastturn = 0
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
-	client.Go(stubs.GameOfLifeHandler, req, res, channel)
+	client.Go(stubs.BrokerClient, req, res, channel)
 
 }
 func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
@@ -96,7 +93,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)
-	ticker := time.NewTicker(time.Second * 2)
+	/*ticker := time.NewTicker(time.Second * 2)
 	mutex := sync.Mutex{}
 	go func(flags *bool) {
 		for {
@@ -138,7 +135,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				mutex.Unlock()
 			}
 		}
-	}(&mutex)
+	}(&mutex)*/
 	select {
 	case <-channel:
 		*newWorld = res.NewState
