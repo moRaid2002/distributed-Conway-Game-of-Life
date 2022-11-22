@@ -36,16 +36,16 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	defer client2.Close()
 	newState := req.CurrentStates
 
-	response := new(stubs.Response)
-	response2 := new(stubs.Response)
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 2, 0}
 		request2 := stubs.Request{newState, req.P, 0, "", 2, req.P.ImageHeight / 2}
+		response := new(stubs.Response)
+		response2 := new(stubs.Response)
 		makeCall(client, request, response)
 		makeCall(client2, request2, response2)
-
 		newState = append(response.NewState, response2.NewState...)
 	}
+
 	res.NewState = newState
 	return
 }
