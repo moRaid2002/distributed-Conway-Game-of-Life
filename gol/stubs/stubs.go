@@ -22,7 +22,7 @@ type Response struct {
 }
 
 type Request struct {
-	CurrentStates *[][]byte
+	CurrentStates [][]byte
 	P             subParams.Params
 	Turn          int
 	Keypress      string
