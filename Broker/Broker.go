@@ -35,7 +35,6 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	response := new(stubs.Response)
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 0, req.P.ImageHeight}
-		fmt.Println("calling", turns)
 		makeCall(client, request, response)
 
 		newState = response.NewState
