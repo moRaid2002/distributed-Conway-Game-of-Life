@@ -26,6 +26,7 @@ var currentState [][]byte
 var Turn = 0
 var index = 0
 var end = false
+var simiend = false
 
 var mutex = sync.Mutex{}
 
@@ -44,6 +45,8 @@ func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 		index++
 	case "k":
 		end = true
+	case "q":
+		simiend = true
 	}
 
 	return
@@ -87,8 +90,13 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	defer client.Close()
 	defer client2.Close()
 	newState := req.CurrentStates
-
-	for turns := 0; turns < req.P.Turns && !end; turns++ {
+	turns := 0
+	if simiend {
+		newState = currentState
+		turns = Turn
+		simiend = false
+	}
+	for turns < req.P.Turns && !end && !simiend {
 		request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
 		request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}
 		request3 := stubs.Request{newState, req.P, 0, "", 4, 2 * int(req.P.ImageHeight/4), 3}
@@ -106,9 +114,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = append(response.NewState, response2.NewState...)
 		newState = append(newState, response3.NewState...)
 		newState = append(newState, response4.NewState...)
-
-		Turn = turns + 1
-
+		turns++
+		Turn = turns
 		currentState = newState
 		mutex.Unlock()
 	}
