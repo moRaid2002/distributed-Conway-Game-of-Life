@@ -19,6 +19,11 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
+func StopAll(client *rpc.Client, req stubs.Request, res *stubs.Response) {
+
+	client.Call(stubs.GameOfLifeHandler, req, res)
+
+}
 
 type Broker struct{}
 
@@ -118,6 +123,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		Turn = turns
 		currentState = newState
 		mutex.Unlock()
+	}
+	if simiend {
+		client.Close()
+		client2.Close()
+		client3.Close()
+		client4.Close()
 	}
 
 	res.NewState = newState
