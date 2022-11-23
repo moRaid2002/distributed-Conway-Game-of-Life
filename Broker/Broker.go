@@ -19,8 +19,9 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
-func StopAll(client *rpc.Client, req stubs.Request, res *stubs.Response) {
-
+func StopAll(client *rpc.Client) {
+	req := new(stubs.Request)
+	res := new(stubs.Response)
 	client.Call(stubs.GameOfLifeStop, req, res)
 
 }
@@ -125,10 +126,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		mutex.Unlock()
 	}
 	if simiend {
-		client.Close()
-		client2.Close()
-		client3.Close()
-		client4.Close()
+		StopAll(client)
+		StopAll(client2)
+		StopAll(client3)
+		StopAll(client4)
 	}
 
 	res.NewState = newState
