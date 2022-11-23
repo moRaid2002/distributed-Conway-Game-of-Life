@@ -5,11 +5,7 @@ import (
 )
 
 var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
-var GameOfLifeAlive = "GameOfLife.GetAlive"
-var GameOfLifePress = "GameOfLife.Key"
-var GameOfLifeLiveView = "GameOfLife.Out"
-var GameOfLifeStop = "GameOfLife.Stop"
-var GameOfLifeClientStop = "GameOfLife.StopClient"
+var GameOfLifeStop = "GameOfLife.StopAll"
 
 var BrokerClient = "Broker.Client"
 var BrokerAlive = "Broker.AliveCell"

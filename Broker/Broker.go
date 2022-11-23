@@ -21,7 +21,7 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 }
 func StopAll(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 
-	client.Call(stubs.GameOfLifeHandler, req, res)
+	client.Call(stubs.GameOfLifeStop, req, res)
 
 }
 
