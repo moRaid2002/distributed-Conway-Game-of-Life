@@ -26,10 +26,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = req.CurrentStates
 		return
 	}
-	server := flag.String("server-1-"+strconv.Itoa(x), "44.201.122.214:8030", "IP:port string to connect to as server")
-	server2 := flag.String("server-2-"+strconv.Itoa(x), "54.90.210.50:8030", "IP:port string to connect to as server")
-	server3 := flag.String("server-3-"+strconv.Itoa(x), "18.212.57.66:8030", "IP:port string to connect to as server")
-	server4 := flag.String("server-4-"+strconv.Itoa(x), "35.172.135.168:8030", "IP:port string to connect to as server")
+	server := flag.String("server-1-"+strconv.Itoa(x), "54.167.162.157:8030", "IP:port string to connect to as server")
+	server2 := flag.String("server-2-"+strconv.Itoa(x), "52.200.11.84:8030", "IP:port string to connect to as server")
+	server3 := flag.String("server-3-"+strconv.Itoa(x), "100.27.20.252:8030", "IP:port string to connect to as server")
+	server4 := flag.String("server-4-"+strconv.Itoa(x), "44.211.72.146:8030", "IP:port string to connect to as server")
 	x++
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
@@ -39,7 +39,6 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	defer client.Close()
 	defer client2.Close()
 	newState := req.CurrentStates
-
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
 		request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}

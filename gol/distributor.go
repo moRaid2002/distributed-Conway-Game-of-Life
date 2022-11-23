@@ -85,7 +85,7 @@ func StopClient(client *rpc.Client) {
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "100.26.208.163:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "55.161.136.76:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
