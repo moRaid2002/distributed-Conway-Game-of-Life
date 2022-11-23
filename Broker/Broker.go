@@ -44,7 +44,6 @@ func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 		index++
 	case "k":
 		end = true
-
 	}
 
 	return

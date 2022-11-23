@@ -76,16 +76,6 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 	}
 
 }
-func Stop(client *rpc.Client) {
-	req := new(stubs.Request)
-	res := new(stubs.Response)
-	client.Call(stubs.GameOfLifeStop, req, res)
-}
-func StopClient(client *rpc.Client) {
-	req := new(stubs.Request)
-	res := new(stubs.Response)
-	client.Call(stubs.GameOfLifeClientStop, req, res)
-}
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
 	server := flag.String(server2, "54.161.136.76:8030", "IP:port string to connect to as server")
@@ -120,12 +110,12 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			case 'q':
 				mutex.Lock()
 				fmt.Println("stopping client")
-				StopClient(client)
+				Press(client, "q", newWorld, p, c)
 				mutex.Unlock()
 			case 'k':
 				mutex.Lock()
 				fmt.Println("stopping")
-				Stop(client)
+				Press(client, "k", newWorld, p, c)
 				mutex.Unlock()
 			}
 
