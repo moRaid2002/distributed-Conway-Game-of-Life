@@ -125,7 +125,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		currentState = newState
 		mutex.Unlock()
 	}
-	if simiend {
+	if end {
 		StopAll(client)
 		StopAll(client2)
 		StopAll(client3)
