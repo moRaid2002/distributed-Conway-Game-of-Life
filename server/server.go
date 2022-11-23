@@ -94,6 +94,7 @@ var end = false
 type GameOfLife struct{}
 
 func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error) {
+	fmt.Println("stopping")
 	end = true
 	return
 }
