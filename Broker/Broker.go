@@ -66,6 +66,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	defer client.Close()
 	defer client2.Close()
 	newState := req.CurrentStates
+
 	for turns := 0; turns < req.P.Turns; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
 		request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}
