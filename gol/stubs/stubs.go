@@ -12,6 +12,7 @@ var GameOfLifeStop = "GameOfLife.Stop"
 var GameOfLifeClientStop = "GameOfLife.StopClient"
 
 var BrokerClient = "Broker.Client"
+var BrokerAlive = "Broker.AliveCell"
 
 type Response struct {
 	NewState      [][]byte

@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/rpc"
 	"strconv"
+	"sync"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 )
@@ -21,11 +22,37 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 
 type Broker struct{}
 
+var currentState [][]byte
+var Turn = 0
+
+var mutex = sync.Mutex{}
+
+func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
+	mutex.Lock()
+	count := 0
+
+	for h := 0; h < req.P.ImageHeight; h++ {
+		for w := 0; w < req.P.ImageWidth; w++ {
+			if currentState[h][w] == 255 {
+				count++
+			}
+		}
+	}
+	res.Alive = count
+	res.Turn = Turn
+	mutex.Unlock()
+
+	return
+}
+
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
+	currentState = req.CurrentStates
+
 	if req.P.Turns == 0 {
 		res.NewState = req.CurrentStates
 		return
 	}
+
 	server := flag.String("server-1-"+strconv.Itoa(x), "54.167.162.157:8030", "IP:port string to connect to as server")
 	server2 := flag.String("server-2-"+strconv.Itoa(x), "52.200.11.84:8030", "IP:port string to connect to as server")
 	server3 := flag.String("server-3-"+strconv.Itoa(x), "100.27.20.252:8030", "IP:port string to connect to as server")
@@ -53,9 +80,15 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		makeCall(client3, request3, response3)
 		makeCall(client4, request4, response4)
 
+		mutex.Lock()
 		newState = append(response.NewState, response2.NewState...)
 		newState = append(newState, response3.NewState...)
 		newState = append(newState, response4.NewState...)
+
+		Turn = turns
+
+		currentState = newState
+		mutex.Unlock()
 	}
 
 	res.NewState = newState
