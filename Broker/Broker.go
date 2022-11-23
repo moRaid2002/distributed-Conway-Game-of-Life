@@ -24,9 +24,30 @@ type Broker struct{}
 
 var currentState [][]byte
 var Turn = 0
+var index = 0
+var end = false
 
 var mutex = sync.Mutex{}
 
+func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
+	switch req.Keypress {
+	case "s":
+		res.NewState = currentState
+	case "p":
+		if index%2 == 0 {
+			fmt.Println("Pausing")
+			mutex.Lock()
+		} else {
+			fmt.Println("Continuing")
+			mutex.Unlock()
+		}
+	case "k":
+		end = true
+
+	}
+
+	return
+}
 func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 	mutex.Lock()
 	count := 0
@@ -67,7 +88,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	defer client2.Close()
 	newState := req.CurrentStates
 
-	for turns := 0; turns < req.P.Turns; turns++ {
+	for turns := 0; turns < req.P.Turns && !end; turns++ {
 		request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
 		request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}
 		request3 := stubs.Request{newState, req.P, 0, "", 4, 2 * int(req.P.ImageHeight/4), 3}
@@ -105,7 +126,12 @@ func main() {
 	rpc.Register(&Broker{})
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
+	go func() {
 
+		for end {
+		}
+		listener.Close()
+	}()
 	rpc.Accept(listener)
 
 	fmt.Println("end")
