@@ -85,7 +85,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = append(newState, response3.NewState...)
 		newState = append(newState, response4.NewState...)
 
-		Turn = turns
+		Turn = turns + 1
 
 		currentState = newState
 		mutex.Unlock()
