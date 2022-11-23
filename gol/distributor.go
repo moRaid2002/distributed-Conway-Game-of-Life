@@ -24,6 +24,7 @@ type distributorChannels struct {
 }
 
 var Lastturn = 0
+var LastState [][]byte
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
@@ -32,15 +33,15 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 }
 func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
 
-	//req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
+	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
-	//client.Call(stubs.GameOfLifeLiveView, req, res)
+	client.Call(stubs.BrokerLiveView, req, res)
 	if res.Flag {
 
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
-				if res.NewState[h][w] != res.PreviousState[h][w] {
-					c.events <- CellFlipped{0, util.Cell{w, h}}
+				if res.NewState[h][w] != LastState[h][w] {
+					c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
 				}
 			}
 		}
@@ -90,14 +91,13 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	ticker := time.NewTicker(time.Second * 2)
 	mutex := sync.Mutex{}
 
-	/*
-		go func(flags *bool) {
-			for {
-				if *flags {
-					LiveView(client, c, newWorld, p)
-				}
+	go func(flags *bool) {
+		for {
+			if *flags {
+				LiveView(client, c, newWorld, p)
 			}
-		}(flags)*/
+		}
+	}(flags)
 	go func(mutex *sync.Mutex) {
 		for {
 			receivingKeyPress := <-c.keyPresses
@@ -170,6 +170,7 @@ func distributor(p Params, c distributorChannels) {
 	// TODO: Execute all turns of the Game of Life.
 	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
+	LastState = newWorld
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
