@@ -10,6 +10,7 @@ var GameOfLifeStop = "GameOfLife.StopAll"
 var BrokerClient = "Broker.Client"
 var BrokerAlive = "Broker.AliveCell"
 var BrokerKeyPress = "Broker.KeyPress"
+var BrokerLiveView = "Broker.KeyPress"
 
 type Response struct {
 	NewState      [][]byte
