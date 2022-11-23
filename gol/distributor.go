@@ -36,16 +36,15 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerLiveView, req, res)
-	if res.Flag {
 
-		for h := 0; h < p.ImageHeight; h++ {
-			for w := 0; w < p.ImageWidth; w++ {
-				if res.NewState[h][w] != LastState[h][w] {
-					c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
-				}
+	for h := 0; h < p.ImageHeight; h++ {
+		for w := 0; w < p.ImageWidth; w++ {
+			if res.NewState[h][w] != LastState[h][w] {
+				c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
 			}
 		}
 	}
+	LastState = res.NewState
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
