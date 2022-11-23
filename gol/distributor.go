@@ -32,9 +32,9 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 }
 func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
 
-	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
+	//req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
-	client.Call(stubs.GameOfLifeLiveView, req, res)
+	//client.Call(stubs.GameOfLifeLiveView, req, res)
 	if res.Flag {
 
 		for h := 0; h < p.ImageHeight; h++ {
