@@ -32,6 +32,7 @@ var currentState [][]byte
 var Turn = 0
 var index = 0
 var end = false
+var stop = false
 var simiend = false
 
 var mutex = sync.Mutex{}
@@ -130,6 +131,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		StopAll(client2)
 		StopAll(client3)
 		StopAll(client4)
+		stop = true
 	}
 
 	res.NewState = newState
@@ -148,7 +150,7 @@ func main() {
 	go func() {
 
 		for {
-			if end {
+			if stop {
 				listener.Close()
 			}
 		}
