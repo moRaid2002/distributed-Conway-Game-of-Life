@@ -128,9 +128,12 @@ func main() {
 	defer listener.Close()
 	go func() {
 
-		for end {
+		for {
+			if end {
+				listener.Close()
+			}
 		}
-		listener.Close()
+
 	}()
 	rpc.Accept(listener)
 
