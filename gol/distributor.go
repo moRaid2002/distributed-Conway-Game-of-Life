@@ -4,6 +4,8 @@ import (
 	"flag"
 	"net/rpc"
 	"strconv"
+	"sync"
+	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 	"uk.ac.bris.cs/gameoflife/util"
@@ -47,7 +49,7 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 
 	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
-	client.Call(stubs.GameOfLifeAlive, req, res)
+	client.Call(stubs.BrokerAlive, req, res)
 	if *flags && res.Turn > Lastturn {
 		Lastturn = res.Turn
 		c.events <- TurnComplete{res.Turn}
@@ -85,7 +87,7 @@ func StopClient(client *rpc.Client) {
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "55.161.136.76:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "54.161.136.76:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -93,39 +95,43 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)
-	/*ticker := time.NewTicker(time.Second * 2)
+
+	ticker := time.NewTicker(time.Second * 2)
 	mutex := sync.Mutex{}
-	go func(flags *bool) {
-		for {
-			if *flags {
-				LiveView(client, c, newWorld, p)
+
+	/*
+		go func(flags *bool) {
+			for {
+				if *flags {
+					LiveView(client, c, newWorld, p)
+				}
 			}
-		}
-	}(flags)
-	go func(mutex *sync.Mutex) {
-		for {
-			receivingKeyPress := <-c.keyPresses
-			switch receivingKeyPress {
-			case 'p':
-				Press(client, "p", newWorld, p, c)
-			case 's':
-				Press(client, "s", newWorld, p, c)
+		}(flags)
+		go func(mutex *sync.Mutex) {
+			for {
+				receivingKeyPress := <-c.keyPresses
+				switch receivingKeyPress {
+				case 'p':
+					Press(client, "p", newWorld, p, c)
+				case 's':
+					Press(client, "s", newWorld, p, c)
 
-			case 'q':
-				mutex.Lock()
-				fmt.Println("stopping client")
-				StopClient(client)
-				mutex.Unlock()
-			case 'k':
-				mutex.Lock()
-				fmt.Println("stopping")
-				Stop(client)
-				mutex.Unlock()
+				case 'q':
+					mutex.Lock()
+					fmt.Println("stopping client")
+					StopClient(client)
+					mutex.Unlock()
+				case 'k':
+					mutex.Lock()
+					fmt.Println("stopping")
+					Stop(client)
+					mutex.Unlock()
+				}
+
 			}
 
-		}
-
-	}(&mutex)
+		}(&mutex)
+	*/
 	go func(mutex *sync.Mutex) {
 		for {
 			select {
@@ -135,7 +141,8 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 				mutex.Unlock()
 			}
 		}
-	}(&mutex)*/
+	}(&mutex)
+
 	select {
 	case <-channel:
 		*newWorld = res.NewState
