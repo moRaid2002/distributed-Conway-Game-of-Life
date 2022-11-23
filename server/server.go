@@ -89,7 +89,14 @@ func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX i
 	out <- newState // Sending the game of life function through the channel.
 }
 
+var end = false
+
 type GameOfLife struct{}
+
+func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error) {
+	end = true
+	return
+}
 
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 
@@ -130,6 +137,14 @@ func main() {
 	rpc.Register(&GameOfLife{})
 	listener, _ := net.Listen("tcp", ":"+*pAddr)
 	defer listener.Close()
+	go func() {
+		for {
+			if end {
+				listener.Close()
+			}
+		}
+
+	}()
 	rpc.Accept(listener)
 	fmt.Println("end")
 }
