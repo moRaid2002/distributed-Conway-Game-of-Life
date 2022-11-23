@@ -2,6 +2,7 @@ package gol
 
 import (
 	"flag"
+	"fmt"
 	"net/rpc"
 	"strconv"
 	"sync"
@@ -61,7 +62,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 
 	req := stubs.Request{*newWorld, p, 0, keypress, 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
-	client.Call(stubs.GameOfLifePress, req, res)
+	client.Call(stubs.BrokerKeyPress, req, res)
 	if keypress == "s" {
 		c.ioCommand <- ioOutput
 		filename2 := "current-state-s"
@@ -106,32 +107,32 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 					LiveView(client, c, newWorld, p)
 				}
 			}
-		}(flags)
-		go func(mutex *sync.Mutex) {
-			for {
-				receivingKeyPress := <-c.keyPresses
-				switch receivingKeyPress {
-				case 'p':
-					Press(client, "p", newWorld, p, c)
-				case 's':
-					Press(client, "s", newWorld, p, c)
+		}(flags)*/
+	go func(mutex *sync.Mutex) {
+		for {
+			receivingKeyPress := <-c.keyPresses
+			switch receivingKeyPress {
+			case 'p':
+				Press(client, "p", newWorld, p, c)
+			case 's':
+				Press(client, "s", newWorld, p, c)
 
-				case 'q':
-					mutex.Lock()
-					fmt.Println("stopping client")
-					StopClient(client)
-					mutex.Unlock()
-				case 'k':
-					mutex.Lock()
-					fmt.Println("stopping")
-					Stop(client)
-					mutex.Unlock()
-				}
-
+			case 'q':
+				mutex.Lock()
+				fmt.Println("stopping client")
+				StopClient(client)
+				mutex.Unlock()
+			case 'k':
+				mutex.Lock()
+				fmt.Println("stopping")
+				Stop(client)
+				mutex.Unlock()
 			}
 
-		}(&mutex)
-	*/
+		}
+
+	}(&mutex)
+
 	go func(mutex *sync.Mutex) {
 		for {
 			select {
