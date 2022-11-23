@@ -41,6 +41,7 @@ func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 			fmt.Println("Continuing")
 			mutex.Unlock()
 		}
+		index++
 	case "k":
 		end = true
 
