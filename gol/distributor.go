@@ -24,6 +24,7 @@ type distributorChannels struct {
 }
 
 var Lastturn = 0
+var Lastturnx = 0
 var LastState [][]byte
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
@@ -36,15 +37,17 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerLiveView, req, res)
-
-	for h := 0; h < p.ImageHeight; h++ {
-		for w := 0; w < p.ImageWidth; w++ {
-			if res.NewState[h][w] != LastState[h][w] {
-				c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
+	if Lastturnx < res.Turn {
+		for h := 0; h < p.ImageHeight; h++ {
+			for w := 0; w < p.ImageWidth; w++ {
+				if res.NewState[h][w] != LastState[h][w] {
+					c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
+				}
 			}
 		}
+		LastState = res.NewState
+		Lastturnx = res.Turn
 	}
-	LastState = res.NewState
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
