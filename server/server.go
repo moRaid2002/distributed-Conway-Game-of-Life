@@ -143,6 +143,7 @@ func main() {
 	add, _ := net.LookupIP("ispycode.com")
 
 	SendIp(add[0].String())
+	fmt.Println("sent")
 	pAddr := flag.String("port", "8030", "Port to listen on")
 
 	flag.Parse()

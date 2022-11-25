@@ -150,7 +150,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		mutex.Lock()
 		newState = nil
-	
+
 		for i := 0; i < numberOfAWS; i++ {
 
 			newState = append(newState, responses[i].NewState...)
