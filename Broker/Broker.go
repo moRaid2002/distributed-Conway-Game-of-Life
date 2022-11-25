@@ -166,9 +166,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		*/
 		mutex.Lock()
-		newState = nil
+		var newStatetemp [][]byte
 		for i := 0; i < numberOfAWS; i++ {
-			newState = append(newState, responses[i].NewState...)
+			newStatetemp = append(newStatetemp, responses[i].NewState...)
 
 		}
 		/*
@@ -179,6 +179,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		*/
 		turns++
 		Turn = turns
+		newState = newStatetemp
 		currentState = newState
 
 		mutex.Unlock()
