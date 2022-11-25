@@ -95,7 +95,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		return
 	}
 	mutex.Lock()
-
+	IpAddresses = nil
 	AddIp("54.197.65.31")
 	AddIp("44.202.53.114")
 	AddIp("3.86.97.163")
