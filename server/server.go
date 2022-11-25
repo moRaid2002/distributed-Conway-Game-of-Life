@@ -14,47 +14,6 @@ import (
 )
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
-func getLocalIP() ([]string, error) {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return nil, err
-	}
-	IPs := make([]string, 0)
-	for _, a := range addrs {
-		if ipNet, ok := a.(*net.IPNet); ok && !ipNet.IP.IsLoopback() {
-			if ipNet.IP.To4() != nil {
-				IPs = append(IPs, ipNet.IP.To4().String())
-			}
-		}
-	}
-	return IPs, nil
-}
-
-// getOutboundIP get the out bound ip, especially useful when you have multi local ipv4 ip and you want figure out which one is been used
-func getOutboundIP() (string, error) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	//conn, err := net.Dial("udp", "114.114.114.114:80")
-	if err != nil {
-		return "", err
-	}
-	defer conn.Close()
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	return localAddr.IP.String(), nil
-}
-
-// getPublicIP get your publilc ip
-func getPublicIP() (string, error) {
-	resp, err := http.Get("https://ifconfig.me")
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(body), nil
-}
 
 func SendIp(str string) {
 	server := flag.String("broker", "100.25.218.192:8030", "IP:port string to connect to as server")
@@ -184,18 +143,11 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 
 func main() {
 	fmt.Println("working")
-	conn, _ := net.Dial("udp", "8.8.8.8:80")
+	res, _ := http.Get("https://ifconfig.me")
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-	fmt.Println(localAddr)
-	addrs, _ := getLocalIP()
-	for _, a := range addrs {
-		fmt.Println(a)
-	}
-	ip, _ := getOutboundIP()
-	fmt.Println(ip)
-	ip2, _ := getPublicIP()
-	fmt.Println(ip2)
+	ipv4, _ := ioutil.ReadAll(res.Body)
+
+	SendIp(string(ipv4))
 	fmt.Println("sent")
 	pAddr := flag.String("port", "8030", "Port to listen on")
 
