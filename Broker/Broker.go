@@ -92,13 +92,13 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 }
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
-	mutex.Lock()
+
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
 		currentState = req.CurrentStates
 		res.NewState = req.CurrentStates
-		mutex.Unlock()
+
 		return
 	}
 
@@ -131,7 +131,6 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-	mutex.Unlock()
 	for turns < req.P.Turns && !end && !simiend {
 		var requests []stubs.Request
 		var responses []*stubs.Response
