@@ -43,6 +43,7 @@ func AddIp(str string) {
 	IpAddresses = append(IpAddresses, str)
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
+	AddIp(req.Ip)
 	fmt.Println(req.Ip)
 	fmt.Println("Ip received")
 	return
@@ -107,11 +108,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		return
 	}
 
-	IpAddresses = nil
+	/*IpAddresses = nil
 	AddIp("54.197.65.31")
 	AddIp("44.202.53.114")
 	AddIp("3.86.97.163")
-	AddIp("52.90.9.121")
+	AddIp("52.90.9.121")*/
 
 	var servers []*string
 	var Clients []*rpc.Client
