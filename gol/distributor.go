@@ -98,7 +98,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	go func(flags *bool) {
 		for {
 			if *flags {
-				//	LiveView(client, c, newWorld, p)
+				LiveView(client, c, newWorld, p)
 			}
 		}
 	}(flags)

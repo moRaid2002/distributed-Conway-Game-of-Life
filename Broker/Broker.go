@@ -20,9 +20,7 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
-func AddIp(str string) {
-	IpAddresses = append(IpAddresses, str)
-}
+
 func StopAll(client *rpc.Client) {
 	req := new(stubs.Request)
 	res := new(stubs.Response)
@@ -40,6 +38,10 @@ var stop = false
 var simiend = false
 
 var mutex = sync.Mutex{}
+
+func AddIp(str string) {
+	IpAddresses = append(IpAddresses, str)
+}
 
 func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
 	mutex.Lock()
@@ -108,28 +110,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
 
-	/*
-		server := flag.String("server-1-"+strconv.Itoa(x), "18.206.124.19:8030", "IP:port string to connect to as server")
-		server2 := flag.String("server-2-"+strconv.Itoa(x), "18.204.195.121:8030", "IP:port string to connect to as server")
-		server3 := flag.String("server-3-"+strconv.Itoa(x), "34.201.65.245:8030", "IP:port string to connect to as server")
-		server4 := flag.String("server-4-"+strconv.Itoa(x), "54.89.102.20:8030", "IP:port string to connect to as server")
-
-	*/
 	x++
 	flag.Parse()
 	for i := range servers {
 		clients, _ := rpc.Dial("tcp", *servers[i])
 		Clients = append(Clients, clients)
 	}
-	/*
-		client, _ := rpc.Dial("tcp", *server)
-		client2, _ := rpc.Dial("tcp", *server2)
-		client3, _ := rpc.Dial("tcp", *server3)
-		client4, _ := rpc.Dial("tcp", *server4)
-
-	*/
-	//defer client.Close()
-	//defer client2.Close()
 
 	numberOfAWS := len(servers)
 
@@ -149,28 +135,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			requests = append(requests, stubs.Request{newState, req.P, 0, "", numberOfAWS, i * int(req.P.ImageHeight/numberOfAWS), i + 1})
 			responses = append(responses, new(stubs.Response))
 		}
-		/*
-			request := stubs.Request{newState, req.P, 0, "", 4, 0, 1}
-			request2 := stubs.Request{newState, req.P, 0, "", 4, int(req.P.ImageHeight / 4), 2}
-			request3 := stubs.Request{newState, req.P, 0, "", 4, 2 * int(req.P.ImageHeight/4), 3}
-			request4 := stubs.Request{newState, req.P, 0, "", 4, 3 * int(req.P.ImageHeight/4), 4}
-			response := new(stubs.Response)
-			response2 := new(stubs.Response)
-			response3 := new(stubs.Response)
-			response4 := new(stubs.Response)
 
-		*/
 		for i := 0; i < numberOfAWS; i++ {
 			makeCall(Clients[i], requests[i], responses[i])
 		}
-		/*
-			makeCall(client, request, response)
-			makeCall(client2, request2, response2)
-			makeCall(client3, request3, response3)
-			makeCall(client4, request4, response4)
 
-
-		*/
 		mutex.Lock()
 		newState = nil
 		fmt.Println(len(responses[0].NewState), len(responses[1].NewState), len(responses[2].NewState), len(responses[3].NewState))
@@ -182,27 +151,18 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		}
 
-		/*
-			newState = append(response.NewState, response2.NewState...)
-			newState = append(newState, response3.NewState...)
-			newState = append(newState, response4.NewState...)
-
-		*/
 		turns++
 		Turn = turns
 		currentState = newState
 
 		mutex.Unlock()
 	}
-	/*if end {
-		StopAll(client)
-		StopAll(client2)
-		StopAll(client3)
-		StopAll(client4)
+	if end {
+		for i := 0; i < numberOfAWS; i++ {
+			StopAll(Clients[i])
+		}
 		stop = true
 	}
-
-	*/
 
 	res.NewState = newState
 	return
