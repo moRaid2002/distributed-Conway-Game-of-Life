@@ -145,6 +145,14 @@ func main() {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 	fmt.Println(localAddr)
 	add := net.IPv4allrouter
+	foo, err := net.InterfaceAddrs()
+
+	if err == nil {
+		for _, v := range foo {
+			fmt.Println(v)
+
+		}
+	}
 
 	SendIp(add.String())
 	fmt.Println("sent")
