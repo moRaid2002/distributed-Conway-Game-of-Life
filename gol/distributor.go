@@ -12,6 +12,8 @@ import (
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
+//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    Hiro
+
 // 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
 type distributorChannels struct {
 	events     chan<- Event
@@ -81,7 +83,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "3.90.189.58:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "100.25.218.192:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
