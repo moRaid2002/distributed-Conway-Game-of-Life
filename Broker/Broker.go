@@ -96,6 +96,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	if req.P.Turns == 0 {
 		currentState = req.CurrentStates
 		res.NewState = req.CurrentStates
+		mutex.Unlock()
 		return
 	}
 
