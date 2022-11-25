@@ -90,6 +90,7 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 }
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
+	mutex.Lock()
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
@@ -97,13 +98,13 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = req.CurrentStates
 		return
 	}
-	mutex.Lock()
+
 	IpAddresses = nil
 	AddIp("54.197.65.31")
 	AddIp("44.202.53.114")
 	AddIp("3.86.97.163")
 	AddIp("52.90.9.121")
-	mutex.Unlock()
+
 	var servers []*string
 	var Clients []*rpc.Client
 	for i := range IpAddresses {
@@ -127,6 +128,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
+	mutex.Unlock()
 	for turns < req.P.Turns && !end && !simiend {
 		var requests []stubs.Request
 		var responses []*stubs.Response
