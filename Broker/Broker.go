@@ -128,7 +128,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	//defer client2.Close()
 
 	numberOfAWS := len(servers)
-	
+
 	newState := req.CurrentStates
 	turns := 0
 	if simiend {
@@ -168,6 +168,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		mutex.Lock()
 		newState = nil
 		for i := 0; i < numberOfAWS; i++ {
+			fmt.Println(len(responses[i].NewState))
 			newState = append(newState, responses[i].NewState...)
 
 		}
