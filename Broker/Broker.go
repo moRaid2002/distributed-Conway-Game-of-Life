@@ -94,10 +94,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = req.CurrentStates
 		return
 	}
-	AddIp("18.206.124.19")
-	AddIp("18.204.195.121")
-	AddIp("34.201.65.245")
-	AddIp("54.89.102.20")
+
 	var servers []*string
 	var Clients []*rpc.Client
 	for i := range IpAddresses {
@@ -205,7 +202,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 }
 
 func main() {
-
+	AddIp("18.206.124.19")
+	AddIp("18.204.195.121")
+	AddIp("34.201.65.245")
+	AddIp("54.89.102.20")
 	fmt.Println("Broker working")
 	pAddr := flag.String("port", "8030", "Port to listen on")
 	flag.Parse()
