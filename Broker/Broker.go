@@ -128,9 +128,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	//defer client2.Close()
 
 	numberOfAWS := len(servers)
-	var requests []stubs.Request
-	var responses []*stubs.Response
-
+	
 	newState := req.CurrentStates
 	turns := 0
 	if simiend {
