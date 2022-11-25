@@ -42,6 +42,10 @@ var mutex = sync.Mutex{}
 func AddIp(str string) {
 	IpAddresses = append(IpAddresses, str)
 }
+func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) {
+	fmt.Println(req.Ip)
+	fmt.Println("Ip received")
+}
 
 func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
 	if req.P.ImageHeight == len(currentState) {
@@ -136,7 +140,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		var responses []*stubs.Response
 
 		for i := 0; i < numberOfAWS; i++ {
-			requests = append(requests, stubs.Request{newState, req.P, 0, "", numberOfAWS, i * int(req.P.ImageHeight/numberOfAWS), i + 1})
+			requests = append(requests, stubs.Request{newState, req.P, 0, "", numberOfAWS, i * int(req.P.ImageHeight/numberOfAWS), i + 1, ""})
 			responses = append(responses, new(stubs.Response))
 		}
 
@@ -146,9 +150,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		mutex.Lock()
 		newState = nil
-		fmt.Println(len(responses[0].NewState), len(responses[1].NewState), len(responses[2].NewState), len(responses[3].NewState))
-		//fmt.Println(responses[0].NewState)
-		fmt.Println(numberOfAWS)
+	
 		for i := 0; i < numberOfAWS; i++ {
 
 			newState = append(newState, responses[i].NewState...)

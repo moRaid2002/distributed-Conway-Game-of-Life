@@ -36,7 +36,7 @@ func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res
 }
 func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p subParams.Params) {
 
-	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
+	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerLiveView, req, res)
 	if Lastturnx < res.Turn {
@@ -53,7 +53,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
 
-	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
+	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerAlive, req, res)
 	if *flags && res.Turn > Lastturn {
@@ -65,7 +65,7 @@ func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][
 }
 func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.Params, c distributorChannels) {
 
-	req := stubs.Request{*newWorld, p, 0, keypress, 0, p.ImageHeight, 0}
+	req := stubs.Request{*newWorld, p, 0, keypress, 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerKeyPress, req, res)
 	if keypress == "s" {
@@ -87,7 +87,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
-	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0}
+	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
 	makeCall(client, channel, req, res)

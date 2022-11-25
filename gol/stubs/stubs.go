@@ -11,6 +11,7 @@ var BrokerClient = "Broker.Client"
 var BrokerAlive = "Broker.AliveCell"
 var BrokerKeyPress = "Broker.KeyPress"
 var BrokerLiveView = "Broker.LiveView"
+var BrokerIp = "Broker.AddIpServer"
 
 type Response struct {
 	NewState      [][]byte
@@ -28,4 +29,5 @@ type Request struct {
 	NumberAWS     int
 	Offset        int
 	Server        int
+	Ip            string
 }

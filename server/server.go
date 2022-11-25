@@ -12,7 +12,15 @@ import (
 )
 
 /** Super-Secret `reversing a string' method we can't allow clients to see. **/
-
+func SendIp(str string) {
+	server := flag.String("broker", "100.25.218.192:8030", "IP:port string to connect to as server")
+	flag.Parse()
+	client, _ := rpc.Dial("tcp", *server)
+	defer client.Close()
+	req := stubs.Request{nil, *new(subParams.Params), 0, "", 0, 0, 0, str}
+	res := new(stubs.Response)
+	client.Call(stubs.BrokerIp, req, res)
+}
 func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
 	nextState := make([][]byte, endX-startX)
@@ -132,7 +140,11 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 
 func main() {
 	fmt.Println("working")
+	add, _ := net.LookupIP("ispycode.com")
+
+	SendIp(add[0].String())
 	pAddr := flag.String("port", "8030", "Port to listen on")
+
 	flag.Parse()
 	rand.Seed(time.Now().UnixNano())
 	rpc.Register(&GameOfLife{})
