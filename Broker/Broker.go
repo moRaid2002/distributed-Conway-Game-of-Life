@@ -174,7 +174,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		for i := 0; i < numberOfAWS; i++ {
 
 			newState = append(newState, responses[i].NewState...)
-			fmt.Println(newState)
+			fmt.Println(i, newState)
 
 		}
 		fmt.Println(newState)
