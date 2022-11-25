@@ -140,6 +140,10 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 
 func main() {
 	fmt.Println("working")
+	conn, _ := net.Dial("udp", "8.8.8.8:80")
+	
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+	fmt.Println(localAddr)
 	add, _ := net.LookupIP("ispycode.com")
 
 	SendIp(add[0].String())
