@@ -13,8 +13,6 @@ import (
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
-/** Super-Secret `reversing a string' method we can't allow clients to see. **/
-
 func SendIp(str string) {
 	server := flag.String("broker", "100.25.218.192:8030", "IP:port string to connect to as server")
 	flag.Parse()

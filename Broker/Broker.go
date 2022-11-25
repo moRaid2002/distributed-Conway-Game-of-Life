@@ -108,12 +108,6 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		return
 	}
 
-	/*IpAddresses = nil
-	AddIp("54.197.65.31")
-	AddIp("44.202.53.114")
-	AddIp("3.86.97.163")
-	AddIp("52.90.9.121")*/
-
 	var servers []*string
 	var Clients []*rpc.Client
 	for i := range IpAddresses {
