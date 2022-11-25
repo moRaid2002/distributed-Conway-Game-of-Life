@@ -95,11 +95,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		return
 	}
 	mutex.Lock()
-	IpAddresses = nil
-	AddIp("54.197.65.31")
-	AddIp("44.202.53.114")
-	AddIp("3.86.97.163")
-	AddIp("52.90.9.121")
+	var IpAddresses []string
+	IpAddresses = append(IpAddresses, "54.197.65.31", "44.202.53.114", "3.86.97.163", "52.90.9.121")
+	/*	AddIp("54.197.65.31")
+		AddIp("44.202.53.114")
+		AddIp("3.86.97.163")
+		AddIp("52.90.9.121")*/
 	mutex.Unlock()
 	var servers []*string
 	var Clients []*rpc.Client
