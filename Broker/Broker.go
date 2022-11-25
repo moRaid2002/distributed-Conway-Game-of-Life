@@ -44,10 +44,12 @@ func AddIp(str string) {
 }
 
 func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
-	mutex.Lock()
-	res.NewState = currentState
-	res.Turn = Turn
-	mutex.Unlock()
+	if req.P.ImageHeight == len(currentState) {
+		mutex.Lock()
+		res.NewState = currentState
+		res.Turn = Turn
+		mutex.Unlock()
+	}
 	return
 }
 func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
