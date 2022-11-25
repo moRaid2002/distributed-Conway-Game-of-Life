@@ -139,6 +139,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	for turns < req.P.Turns && !end && !simiend {
+		var requests []stubs.Request
+		var responses []*stubs.Response
 		for i := 0; i < numberOfAWS; i++ {
 			requests = append(requests, stubs.Request{newState, req.P, 0, "", numberOfAWS, i * int(req.P.ImageHeight/numberOfAWS), i + 1})
 			responses = append(responses, new(stubs.Response))
@@ -180,8 +182,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		turns++
 		Turn = turns
 		currentState = newState
-		responses = nil
-		requests = nil
+
 		mutex.Unlock()
 	}
 	/*if end {
