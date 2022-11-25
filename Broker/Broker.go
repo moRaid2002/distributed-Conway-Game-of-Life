@@ -91,10 +91,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		return
 	}
 
-	server := flag.String("server-1-"+strconv.Itoa(x), "54.167.162.157:8030", "IP:port string to connect to as server")
-	server2 := flag.String("server-2-"+strconv.Itoa(x), "52.200.11.84:8030", "IP:port string to connect to as server")
-	server3 := flag.String("server-3-"+strconv.Itoa(x), "100.27.20.252:8030", "IP:port string to connect to as server")
-	server4 := flag.String("server-4-"+strconv.Itoa(x), "44.211.72.146:8030", "IP:port string to connect to as server")
+	server := flag.String("server-1-"+strconv.Itoa(x), "18.206.124.19:8030", "IP:port string to connect to as server")
+	server2 := flag.String("server-2-"+strconv.Itoa(x), "18.204.195.121:8030", "IP:port string to connect to as server")
+	server3 := flag.String("server-3-"+strconv.Itoa(x), "34.201.65.245:8030", "IP:port string to connect to as server")
+	server4 := flag.String("server-4-"+strconv.Itoa(x), "54.89.102.20:8030", "IP:port string to connect to as server")
 	x++
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
