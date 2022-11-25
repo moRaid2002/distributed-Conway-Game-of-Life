@@ -94,11 +94,13 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		res.NewState = req.CurrentStates
 		return
 	}
+	mutex.Lock()
 	IpAddresses = nil
 	AddIp("18.206.124.19")
 	AddIp("18.204.195.121")
 	AddIp("34.201.65.245")
 	AddIp("54.89.102.20")
+	mutex.Unlock()
 	var servers []*string
 	var Clients []*rpc.Client
 	for i := range IpAddresses {
