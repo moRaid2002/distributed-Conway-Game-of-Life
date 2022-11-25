@@ -42,9 +42,10 @@ var mutex = sync.Mutex{}
 func AddIp(str string) {
 	IpAddresses = append(IpAddresses, str)
 }
-func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) {
+func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println(req.Ip)
 	fmt.Println("Ip received")
+	return
 }
 
 func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
