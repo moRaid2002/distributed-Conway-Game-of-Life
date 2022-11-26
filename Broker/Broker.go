@@ -150,7 +150,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	}
 	currentState = req.CurrentStates
 	for turns < req.P.Turns && !end && !simiend {
-		fmt.Println(numberOfAWS, turns)
+
 		var requests []stubs.Request
 		var responses []*stubs.Response
 
@@ -167,11 +167,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = nil
 
 		for i := 0; i < numberOfAWS; i++ {
-			fmt.Println(len(responses[i].NewState))
+
 			newState = append(newState, responses[i].NewState...)
 
 		}
 		if len(newState) != req.P.ImageHeight {
+			fmt.Println("server stopped continue with " + strconv.Itoa(numberOfAWS-1) + " servers")
 			IpAddresses = nil
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
@@ -187,10 +188,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 				clients, _ := rpc.Dial("tcp", *servers[i])
 				Clients = append(Clients, clients)
 			}
-			fmt.Println(IpAddresses)
+
 			newState = currentState
 		} else {
-			fmt.Println("success")
+
 			turns++
 			Turn = turns
 			currentState = newState
