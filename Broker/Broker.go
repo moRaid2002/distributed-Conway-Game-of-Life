@@ -175,6 +175,16 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
 			}
+			numberOfAWS = len(IpAddresses)
+			servers = nil
+			x++
+			for i := range IpAddresses {
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+			}
+			for i := range servers {
+				clients, _ := rpc.Dial("tcp", *servers[i])
+				Clients = append(Clients, clients)
+			}
 			fmt.Println(IpAddresses)
 			newState = currentState
 		} else {
