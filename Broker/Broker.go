@@ -175,6 +175,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
 			}
+			fmt.Println(IpAddresses)
 			newState = currentState
 		} else {
 			turns++
