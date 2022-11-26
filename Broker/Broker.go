@@ -166,7 +166,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = nil
 
 		for i := 0; i < numberOfAWS; i++ {
-
+			if len(responses[i].NewState) == 0 {
+				fmt.Println("server" + strconv.Itoa(i) + "stopped")
+			}
 			newState = append(newState, responses[i].NewState...)
 
 		}
