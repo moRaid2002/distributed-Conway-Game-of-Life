@@ -175,12 +175,12 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
 			}
-
+			newState = currentState
+		} else {
+			turns++
+			Turn = turns
+			currentState = newState
 		}
-		turns++
-		Turn = turns
-		currentState = newState
-
 		mutex.Unlock()
 	}
 	if end {
