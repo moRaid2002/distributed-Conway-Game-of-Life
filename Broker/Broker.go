@@ -165,9 +165,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		mutex.Lock()
 		newState = nil
-		fmt.Println(len(responses[0].NewState), len(responses[1].NewState), len(responses[2].NewState))
-		for i := 0; i < numberOfAWS; i++ {
 
+		for i := 0; i < numberOfAWS; i++ {
+			fmt.Println(len(responses[i].NewState))
 			newState = append(newState, responses[i].NewState...)
 
 		}
