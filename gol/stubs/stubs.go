@@ -6,6 +6,7 @@ import (
 
 var GameOfLifeHandler = "GameOfLife.EvaluateBoard"
 var GameOfLifeStop = "GameOfLife.StopAll"
+var GameOfLifeSend = "GameOfLife.Reset"
 
 var BrokerClient = "Broker.Client"
 var BrokerAlive = "Broker.AliveCell"
