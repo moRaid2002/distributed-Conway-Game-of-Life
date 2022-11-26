@@ -107,7 +107,15 @@ func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error)
 	end = true
 	return
 }
+func (s *GameOfLife) Reset(req stubs.Request, res *stubs.Response) (err error) {
+	resp, _ := http.Get("https://ifconfig.me")
 
+	ipv4, _ := ioutil.ReadAll(resp.Body)
+
+	SendIp(string(ipv4))
+	fmt.Println("sent again")
+	return
+}
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 
 	var chanels []chan [][]byte

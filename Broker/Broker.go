@@ -166,13 +166,17 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = nil
 
 		for i := 0; i < numberOfAWS; i++ {
-			if len(responses[i].NewState) == 0 {
-				fmt.Println("server" + strconv.Itoa(i) + "stopped")
-			}
+
 			newState = append(newState, responses[i].NewState...)
 
 		}
+		if len(newState) != req.P.ImageHeight {
+			IpAddresses = nil
+			for i := range Clients {
+				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
+			}
 
+		}
 		turns++
 		Turn = turns
 		currentState = newState
