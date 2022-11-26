@@ -180,9 +180,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			}
 			numberOfAWS = len(IpAddresses)
 			servers = nil
-			
+
 			for i := range IpAddresses {
-				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
 			y++
 			Clients = nil
