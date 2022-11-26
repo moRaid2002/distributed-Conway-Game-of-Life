@@ -40,6 +40,11 @@ var simiend = false
 var mutex = sync.Mutex{}
 
 func AddIp(str string) {
+	for i := range IpAddresses {
+		if IpAddresses[i] == str {
+			return
+		}
+	}
 	IpAddresses = append(IpAddresses, str)
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {

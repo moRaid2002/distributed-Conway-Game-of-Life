@@ -178,7 +178,7 @@ func distributor(p Params, c distributorChannels) {
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
-	c.ioCommand <- ioOutput
+	/*c.ioCommand <- ioOutput
 	filename = filename + "x" + strconv.Itoa(p.Turns)
 	c.ioFilename <- filename
 
@@ -188,7 +188,7 @@ func distributor(p Params, c distributorChannels) {
 			c.ioOutput <- newWorld[h][w]
 
 		}
-	}
+	}*/
 
 	// Make sure that the Io has finished any output before exiting.
 	new := make([]util.Cell, 0)
