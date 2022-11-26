@@ -13,6 +13,7 @@ import (
 )
 
 var x = 1
+var y = 1
 var IpAddresses []string
 
 func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
@@ -179,10 +180,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			}
 			numberOfAWS = len(IpAddresses)
 			servers = nil
-			x++
+			
 			for i := range IpAddresses {
-				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
+			y++
 			Clients = nil
 			for i := range servers {
 				clients, _ := rpc.Dial("tcp", *servers[i])
