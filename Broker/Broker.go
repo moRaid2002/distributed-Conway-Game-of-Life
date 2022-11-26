@@ -116,6 +116,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 	var servers []*string
 	var Clients []*rpc.Client
+	var errors []error
 	for i := range IpAddresses {
 		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
@@ -123,9 +124,21 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	x++
 	flag.Parse()
 	for i := range servers {
-		clients, _ := rpc.Dial("tcp", *servers[i])
+		clients, err := rpc.Dial("tcp", *servers[i])
 		Clients = append(Clients, clients)
+		errors = append(errors, err)
 	}
+	go func() {
+		for {
+			for i := range errors {
+				if errors[i] != nil {
+					fmt.Println("server" + strconv.Itoa(i) + "stopped")
+				}
+			}
+
+		}
+	}()
+
 	numberOfAWS := len(servers)
 
 	newState := req.CurrentStates
