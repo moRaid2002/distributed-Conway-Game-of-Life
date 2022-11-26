@@ -8,19 +8,23 @@ import (
 	"net"
 	"net/http"
 	"net/rpc"
+	"strconv"
 	"time"
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
+var x = 0
+
 func SendIp(str string) {
-	server := flag.String("broker", "3.86.145.121:8030", "IP:port string to connect to as server")
+	server := flag.String("broker"+strconv.Itoa(x), "3.86.145.121:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
 	req := stubs.Request{nil, *new(subParams.Params), 0, "", 0, 0, 0, str}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerIp, req, res)
+	x++
 }
 func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
