@@ -189,6 +189,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			fmt.Println(IpAddresses)
 			newState = currentState
 		} else {
+			fmt.Println("success")
 			turns++
 			Turn = turns
 			currentState = newState
