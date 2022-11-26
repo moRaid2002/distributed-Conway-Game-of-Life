@@ -98,7 +98,8 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 }
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
-
+	fmt.Println("enter")
+	fmt.Println(IpAddresses)
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
