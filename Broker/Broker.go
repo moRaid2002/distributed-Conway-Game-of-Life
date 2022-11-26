@@ -120,7 +120,6 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		clients, _ := rpc.Dial("tcp", *servers[i])
 		Clients = append(Clients, clients)
 	}
-
 	numberOfAWS := len(servers)
 
 	newState := req.CurrentStates

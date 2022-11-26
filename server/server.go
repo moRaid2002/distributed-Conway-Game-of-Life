@@ -14,7 +14,7 @@ import (
 )
 
 func SendIp(str string) {
-	server := flag.String("broker", "100.25.218.192:8030", "IP:port string to connect to as server")
+	server := flag.String("broker", "3.86.145.121:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
