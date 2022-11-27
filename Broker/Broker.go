@@ -216,7 +216,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		}
 		if len(newState) != req.P.ImageHeight {
-
+			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			IpAddresses = nil
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
