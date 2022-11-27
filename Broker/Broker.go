@@ -39,8 +39,21 @@ func Encode(newWorld [][]byte) {
 		encoded[i] = x
 	}
 	fmt.Println(encoded)
+	Decode(encoded)
 }
-
+func Decode(encode []int) {
+	newWorld := make([][]byte, len(encode))
+	for i := 0; i < len(encode); i++ {
+		newWorld[i] = make([]byte, len(encode))
+	}
+	for h := 0; h < len(newWorld); h++ {
+		for w := 0; w < len(newWorld); w++ {
+			newWorld[h][w] = byte(encode[h] % 2)
+			encode[h] = int(encode[h] / 2)
+		}
+	}
+	fmt.Println(newWorld)
+}
 func StopAll(client *rpc.Client) {
 	req := new(stubs.Request)
 	res := new(stubs.Response)
