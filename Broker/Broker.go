@@ -31,16 +31,25 @@ func Encode(State [][]byte) {
 			}
 		}
 	}
-	encoded := make([]int, len(newWorld))
+	encoded := make([][]int, len(newWorld))
+	for i := 0; i < int(len(newWorld)/64); i++ {
+		encoded[i] = make([]int, int(len(newWorld)/64))
+	}
+	y := len(newWorld)
+	if len(newWorld) > 64 {
+		y = 64
+	}
 	for i := 0; i < len(newWorld); i++ {
-		x := 0
-		for h := 0; h < len(newWorld); h++ {
-			x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
+		for w := 0; w < int(len(newWorld)/64); w++ {
+			x := 0
+			for h := 0; h < y; h++ {
+				x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
+			}
+			encoded[i][w] = x
 		}
-		encoded[i] = x
 	}
 	fmt.Println(encoded)
-	Decode(encoded)
+	//Decode(encoded)
 }
 func Decode(encode []int) {
 	newWorld := make([][]byte, len(encode))
