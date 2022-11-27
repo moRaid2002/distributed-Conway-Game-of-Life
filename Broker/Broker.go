@@ -22,7 +22,22 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 
 }
 func Encode(newWorld [][]byte) {
-
+	for h := 0; h < len(newWorld); h++ {
+		for w := 0; w < len(newWorld); w++ {
+			if newWorld[h][w] == 255 {
+				newWorld[h][w] = 1
+			}
+		}
+	}
+	encoded := make([]int, len(newWorld))
+	for i := range encoded {
+		x := 0
+		for h := range encoded {
+			x = 10*x + int(newWorld[i][h])*(2^h)
+		}
+		encoded = append(encoded, x)
+	}
+	fmt.Println(encoded)
 }
 
 func StopAll(client *rpc.Client) {
@@ -108,7 +123,8 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
-	fmt.Println(IpAddresses)
+	fmt.Println(req.CurrentStates)
+	Encode(req.CurrentStates)
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
@@ -120,7 +136,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 	var servers []*string
 	var Clients []*rpc.Client
-	
+
 	for i := range IpAddresses {
 		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
@@ -166,7 +182,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		}
 		if len(newState) != req.P.ImageHeight {
-			fmt.Println("server stopped continue with " + strconv.Itoa(numberOfAWS-1) + " servers")
+
 			IpAddresses = nil
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
