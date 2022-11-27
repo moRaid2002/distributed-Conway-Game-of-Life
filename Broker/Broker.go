@@ -34,7 +34,7 @@ func Encode(newWorld [][]byte) {
 	for i := 0; i < len(newWorld); i++ {
 		x := 0
 		for h := 0; h < len(newWorld); h++ {
-			x = 10*x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
+			x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
 		}
 		encoded[i] = x
 	}
