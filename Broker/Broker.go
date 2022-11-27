@@ -36,12 +36,15 @@ func Encode(State [][]byte) {
 		encoded[i] = make([]int, int(len(newWorld)/64))
 	}
 	y := len(newWorld)
+	q := int(len(newWorld) / 64)
 	if len(newWorld) > 64 {
 		y = 64
+	} else {
+		q = 1
 	}
 	fmt.Println(len(encoded[0]))
 	for i := 0; i < len(newWorld); i++ {
-		for w := 0; w < len(encoded[0]); w++ {
+		for w := 0; w < q; w++ {
 			x := 0
 			for h := 0; h < y; h++ {
 				x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
