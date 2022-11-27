@@ -39,6 +39,7 @@ func Encode(State [][]byte) {
 	if len(newWorld) > 64 {
 		y = 64
 	}
+	fmt.Println(len(encoded[0]))
 	for i := 0; i < len(newWorld); i++ {
 		for w := 0; w < len(encoded[0]); w++ {
 			x := 0
