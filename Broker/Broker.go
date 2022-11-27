@@ -22,7 +22,8 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
-func Encode(newWorld [][]byte) {
+func Encode(State [][]byte) {
+	newWorld := State
 	for h := 0; h < len(newWorld); h++ {
 		for w := 0; w < len(newWorld); w++ {
 			if newWorld[h][w] == 255 {
