@@ -53,6 +53,13 @@ func Decode(encode []int) {
 			encode[h] = int(encode[h] / 2)
 		}
 	}
+	for h := 0; h < len(newWorld); h++ {
+		for w := 0; w < len(newWorld); w++ {
+			if newWorld[h][w] == 1 {
+				newWorld[h][w] = 255
+			}
+		}
+	}
 	fmt.Println(newWorld)
 }
 func StopAll(client *rpc.Client) {
@@ -138,8 +145,7 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
-	fmt.Println(req.CurrentStates)
-	Encode(req.CurrentStates)
+
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
@@ -174,6 +180,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
+	fmt.Println(req.CurrentStates)
+	Encode(req.CurrentStates)
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
