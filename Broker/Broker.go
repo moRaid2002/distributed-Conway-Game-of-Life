@@ -120,7 +120,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 	var servers []*string
 	var Clients []*rpc.Client
-	var errors []error
+	
 	for i := range IpAddresses {
 		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
