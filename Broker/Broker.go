@@ -30,9 +30,9 @@ func Encode(newWorld [][]byte) {
 		}
 	}
 	encoded := make([]int, len(newWorld))
-	for i := range encoded {
+	for i := 0; i < len(newWorld); i++ {
 		x := 0
-		for h := range encoded {
+		for h := 0; h < len(newWorld); h++ {
 			x = 10*x + int(newWorld[i][h])*(2^h)
 		}
 		encoded = append(encoded, x)
