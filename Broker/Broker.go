@@ -21,6 +21,9 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
+func Encode(newWorld [][]byte) {
+
+}
 
 func StopAll(client *rpc.Client) {
 	req := new(stubs.Request)
@@ -125,20 +128,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	x++
 	flag.Parse()
 	for i := range servers {
-		clients, err := rpc.Dial("tcp", *servers[i])
+		clients, _ := rpc.Dial("tcp", *servers[i])
 		Clients = append(Clients, clients)
-		errors = append(errors, err)
-	}
-	go func() {
-		for {
-			for i := range errors {
-				if errors[i] != nil {
-					fmt.Println("server" + strconv.Itoa(i) + "stopped")
-				}
-			}
 
-		}
-	}()
+	}
 
 	numberOfAWS := len(servers)
 
