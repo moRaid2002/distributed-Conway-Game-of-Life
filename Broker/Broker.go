@@ -36,7 +36,7 @@ func Encode(State [][]byte) {
 		encoded[i] = make([]int, int(len(newWorld)/64))
 	}
 	y := len(newWorld)
-	
+
 	if len(newWorld) > 64 {
 		y = 64
 	}
@@ -191,8 +191,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-	fmt.Println(req.CurrentStates)
-	Encode(req.CurrentStates)
+	//fmt.Println(req.CurrentStates)
+	//Encode(req.CurrentStates)
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
