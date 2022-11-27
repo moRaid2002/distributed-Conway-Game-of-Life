@@ -39,8 +39,8 @@ func Encode(State [][]byte) {
 	if len(newWorld) > 64 {
 		y = 64
 	}
-	for i := 0; i < len(newWorld); i++ {
-		for w := 0; w < int(len(newWorld)/64); w++ {
+	for i := 0; i < int(len(newWorld)/64); i++ {
+		for w := 0; w < len(newWorld); w++ {
 			x := 0
 			for h := 0; h < y; h++ {
 				x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
