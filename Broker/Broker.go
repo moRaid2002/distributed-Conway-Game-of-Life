@@ -44,7 +44,7 @@ var mutex = sync.Mutex{}
 func Time() {
 	timer = 0
 	for {
-		time.Sleep(time.Millisecond)
+		time.Sleep(time.Second)
 		timer++
 	}
 }
