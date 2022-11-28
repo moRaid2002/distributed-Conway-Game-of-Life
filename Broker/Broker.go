@@ -166,7 +166,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		for i := 0; i < numberOfAWS; i++ {
 			makeCall(Clients[i], requests[i], responses[i], channels[i])
 		}
-
+		fmt.Println(timer)
 		mutex.Lock()
 		newState = nil
 		for i := 0; i < numberOfAWS; i++ {
@@ -175,6 +175,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 				newState = append(newState, responses[0].NewState...)
 			}
 		}
+		fmt.Println(timer)
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
 			for i := range Clients {
