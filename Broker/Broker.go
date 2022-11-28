@@ -46,12 +46,13 @@ func AddIp(str string) {
 			return
 		}
 	}
+	fmt.Println(str)
+	fmt.Println("Ip received")
 	IpAddresses = append(IpAddresses, str)
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
 	AddIp(req.Ip)
-	fmt.Println(req.Ip)
-	fmt.Println("Ip received")
+
 	return
 }
 
