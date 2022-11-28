@@ -12,9 +12,9 @@ import (
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
-//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    Hiro
+//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   	Hiro
 
-// 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
+// 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  	MO
 type distributorChannels struct {
 	events     chan<- Event
 	ioCommand  chan<- ioCommand
@@ -83,7 +83,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "54.196.194.84:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "44.198.167.52:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -178,7 +178,7 @@ func distributor(p Params, c distributorChannels) {
 	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
-	c.ioCommand <- ioOutput
+	/*c.ioCommand <- ioOutput
 	filename = filename + "x" + strconv.Itoa(p.Turns)
 	c.ioFilename <- filename
 
@@ -189,6 +189,8 @@ func distributor(p Params, c distributorChannels) {
 
 		}
 	}
+
+	*/
 
 	// Make sure that the Io has finished any output before exiting.
 	new := make([]util.Cell, 0)
