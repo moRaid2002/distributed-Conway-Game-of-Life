@@ -16,9 +16,9 @@ var x = 1
 var y = 1
 var IpAddresses []string
 
-func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
+func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channel chan *rpc.Call) {
 
-	client.Call(stubs.GameOfLifeHandler, req, res)
+	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
 
@@ -132,7 +132,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	}
 
 	numberOfAWS := len(servers)
-
+	var channels []chan *rpc.Call
+	for i := 0; i < numberOfAWS; i++ {
+		channels = append(channels, make(chan *rpc.Call))
+	}
 	newState := req.CurrentStates
 	turns := 0
 	if simiend {
@@ -153,16 +156,16 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		}
 
 		for i := 0; i < numberOfAWS; i++ {
-			makeCall(Clients[i], requests[i], responses[i])
+			makeCall(Clients[i], requests[i], responses[i], channels[i])
 		}
 
 		mutex.Lock()
 		newState = nil
 
 		for i := 0; i < numberOfAWS; i++ {
-
+			//	done := <- channels[i]
 			newState = append(newState, responses[i].NewState...)
-
+			//done = nil
 		}
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
