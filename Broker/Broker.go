@@ -163,9 +163,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = nil
 
 		for i := 0; i < numberOfAWS; i++ {
-			done := <-channels[i]
-			newState = append(newState, responses[i].NewState...)
-			fmt.Println(done)
+			select {
+			case <-channels[i]:
+				newState = append(newState, responses[i].NewState...)
+
+			}
 		}
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
