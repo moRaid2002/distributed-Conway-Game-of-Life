@@ -163,8 +163,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		newState = nil
 		for i := 0; i < numberOfAWS; i++ {
 			select {
-			case <-channels[0]:
-				newState = append(newState, responses[0].NewState...)
+			case <-channels[i]:
+				newState = append(newState, responses[i].NewState...)
 			}
 		}
 
