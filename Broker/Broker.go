@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math"
 	"math/rand"
 	"net"
 	"net/rpc"
@@ -22,57 +21,7 @@ func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response) {
 	client.Call(stubs.GameOfLifeHandler, req, res)
 
 }
-func Encode(State [][]byte) {
-	newWorld := State
-	for h := 0; h < len(newWorld); h++ {
-		for w := 0; w < len(newWorld); w++ {
-			if newWorld[h][w] == 255 {
-				newWorld[h][w] = 1
-			}
-		}
-	}
-	encoded := make([][]int, len(newWorld))
-	for i := 0; i <= int(len(newWorld)/64); i++ {
-		encoded[i] = make([]int, int(len(newWorld)/64))
-	}
-	y := len(newWorld)
 
-	if len(newWorld) > 64 {
-		y = 64
-	}
-	fmt.Println(len(encoded[0]))
-	for i := 0; i < len(newWorld); i++ {
-		for w := 0; w < len(encoded[0]); w++ {
-			x := 0
-			for h := 0; h < y; h++ {
-				x = x + int(newWorld[i][h])*(int(math.Pow(2, float64(h))))
-			}
-			encoded[i][w] = x
-		}
-	}
-	fmt.Println(encoded)
-	//Decode(encoded)
-}
-func Decode(encode []int) {
-	newWorld := make([][]byte, len(encode))
-	for i := 0; i < len(encode); i++ {
-		newWorld[i] = make([]byte, len(encode))
-	}
-	for h := 0; h < len(newWorld); h++ {
-		for w := 0; w < len(newWorld); w++ {
-			newWorld[h][w] = byte(encode[h] % 2)
-			encode[h] = int(encode[h] / 2)
-		}
-	}
-	for h := 0; h < len(newWorld); h++ {
-		for w := 0; w < len(newWorld); w++ {
-			if newWorld[h][w] == 1 {
-				newWorld[h][w] = 255
-			}
-		}
-	}
-	fmt.Println(newWorld)
-}
 func StopAll(client *rpc.Client) {
 	req := new(stubs.Request)
 	res := new(stubs.Response)
@@ -191,8 +140,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-	//fmt.Println(req.CurrentStates)
-	//Encode(req.CurrentStates)
+
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
@@ -216,14 +164,13 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		}
 		if len(newState) != req.P.ImageHeight {
-			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS-1) + " servers")
 			IpAddresses = nil
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
 			}
 			numberOfAWS = len(IpAddresses)
 			servers = nil
-
+			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			for i := range IpAddresses {
 				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
@@ -251,7 +198,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	}
 
 	res.NewState = newState
-	fmt.Println(res.NewState)
+
 	return
 }
 
