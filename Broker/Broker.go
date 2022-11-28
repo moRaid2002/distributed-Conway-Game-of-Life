@@ -134,7 +134,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	numberOfAWS := len(servers)
 	var channels []chan *rpc.Call
 	for i := 0; i < numberOfAWS; i++ {
-		channels = append(channels, make(chan *rpc.Call))
+		channels = append(channels, make(chan *rpc.Call, 10))
 	}
 	newState := req.CurrentStates
 	turns := 0
@@ -168,6 +168,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 				newState = append(newState, responses[i].NewState...)
 
 			}
+
 		}
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
