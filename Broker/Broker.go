@@ -37,17 +37,9 @@ var index = 0
 var end = false
 var stop = false
 var simiend = false
-var timer = 0
 
 var mutex = sync.Mutex{}
 
-func Time() {
-	timer = 0
-	for {
-		time.Sleep(time.Second)
-		timer++
-	}
-}
 func AddIp(str string) {
 	for i := range IpAddresses {
 		if IpAddresses[i] == str {
@@ -114,7 +106,7 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
-	go Time()
+
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
@@ -152,7 +144,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-	fmt.Println(timer)
+
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
@@ -166,7 +158,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		for i := 0; i < numberOfAWS; i++ {
 			makeCall(Clients[i], requests[i], responses[i], channels[i])
 		}
-		fmt.Println(timer)
+
 		mutex.Lock()
 		newState = nil
 		for i := 0; i < numberOfAWS; i++ {
@@ -175,7 +167,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 				newState = append(newState, responses[0].NewState...)
 			}
 		}
-		fmt.Println(timer)
+
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
 			for i := range Clients {
@@ -212,7 +204,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		}
 		stop = true
 	}
-	fmt.Println(timer)
+
 	res.NewState = newState
 
 	return

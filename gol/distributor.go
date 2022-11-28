@@ -83,7 +83,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "44.198.167.52:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "3.239.31.124:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
