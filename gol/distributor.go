@@ -114,7 +114,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			case 'q':
 				mutex.Lock()
 				fmt.Println("stopping client")
-				//Press(client, "q", newWorld, p, c)
+				Press(client, "q", newWorld, p, c)
 				mutex.Unlock()
 			case 'k':
 				mutex.Lock()
