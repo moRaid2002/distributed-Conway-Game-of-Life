@@ -37,9 +37,16 @@ var index = 0
 var end = false
 var stop = false
 var simiend = false
+var timer = 0
 
 var mutex = sync.Mutex{}
 
+func Time() {
+	for {
+		time.Sleep(time.Millisecond)
+		timer++
+	}
+}
 func AddIp(str string) {
 	for i := range IpAddresses {
 		if IpAddresses[i] == str {
@@ -106,7 +113,7 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("enter")
-
+	go Time()
 	currentState = req.CurrentStates
 
 	if req.P.Turns == 0 {
@@ -144,7 +151,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-
+	fmt.Println(timer)
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
@@ -161,14 +168,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 		mutex.Lock()
 		newState = nil
-
 		for i := 0; i < numberOfAWS; i++ {
 			select {
-			case <-channels[i]:
-				newState = append(newState, responses[i].NewState...)
-
+			case <-channels[0]:
+				newState = append(newState, responses[0].NewState...)
 			}
-
 		}
 		if len(newState) != req.P.ImageHeight {
 			IpAddresses = nil
@@ -177,6 +181,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			}
 			numberOfAWS = len(IpAddresses)
 			servers = nil
+			if numberOfAWS == 0 {
+				return err
+			}
 			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			for i := range IpAddresses {
 				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
@@ -203,7 +210,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		}
 		stop = true
 	}
-
+	fmt.Println(timer)
 	res.NewState = newState
 
 	return
