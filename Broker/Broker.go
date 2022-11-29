@@ -15,9 +15,9 @@ import (
 var x = 1
 var y = 1
 var IpAddresses []string
+var IpAddressesCopy []string
 
 func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channel chan *rpc.Call) {
-
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
@@ -49,6 +49,7 @@ func AddIp(str string) {
 	fmt.Println(str)
 	fmt.Println("Ip received")
 	IpAddresses = append(IpAddresses, str)
+	IpAddressesCopy = append(IpAddressesCopy, str)
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
 	AddIp(req.Ip)
@@ -142,7 +143,11 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-
+	IpAddressesCopy = nil
+	for i := range Clients {
+		Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
+	}
+	fmt.Println(IpAddresses, IpAddressesCopy)
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
