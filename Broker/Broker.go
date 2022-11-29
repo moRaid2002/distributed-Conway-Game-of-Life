@@ -130,6 +130,8 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		//Clients = append(Clients, clients)
 		if err != nil {
 			fmt.Println("server disconnected ")
+			servers = append(servers[:i], servers[i+1:]...)
+			IpAddresses = append(IpAddresses[:i], IpAddresses[i+1:]...)
 		} else {
 			Clients = append(Clients, clients)
 		}
