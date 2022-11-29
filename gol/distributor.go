@@ -28,6 +28,7 @@ type distributorChannels struct {
 var Lastturn = 0
 var Lastturnx = 0
 var LastState [][]byte
+var diff = 0
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
@@ -83,7 +84,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 }
 
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
-	server := flag.String(server2, "44.211.48.13:8030", "IP:port string to connect to as server")
+	server := flag.String(server2, "34.201.48.86:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -175,20 +176,23 @@ func distributor(p Params, c distributorChannels) {
 	flag := true
 	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	LastState = newWorld
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads), c, &flag)
+	diff++
+	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads)+"-"+strconv.Itoa(diff), c, &flag)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
-	c.ioCommand <- ioOutput
-	filename = filename + "x" + strconv.Itoa(p.Turns)
-	c.ioFilename <- filename
+	/*	c.ioCommand <- ioOutput
+		filename = filename + "x" + strconv.Itoa(p.Turns)
+		c.ioFilename <- filename
 
-	for h := 0; h < p.ImageHeight; h++ {
-		for w := 0; w < p.ImageWidth; w++ {
+		for h := 0; h < p.ImageHeight; h++ {
+			for w := 0; w < p.ImageWidth; w++ {
 
-			c.ioOutput <- newWorld[h][w]
+				c.ioOutput <- newWorld[h][w]
 
+			}
 		}
-	}
+
+	*/
 
 	// Make sure that the Io has finished any output before exiting.
 	new := make([]util.Cell, 0)
