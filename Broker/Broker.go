@@ -212,10 +212,17 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			y++
 			Clients = nil
 			for i := range servers {
-				clients, _ := rpc.Dial("tcp", *servers[i])
-				Clients = append(Clients, clients)
-			}
+				clients, err := rpc.Dial("tcp", *servers[i])
+				//Clients = append(Clients, clients)
+				if err != nil {
+					servers = append(servers[:i], servers[i+1:]...)
+					IpAddresses = append(IpAddresses[:i], IpAddresses[i+1:]...)
+				} else {
+					Clients = append(Clients, clients)
+				}
 
+			}
+			newState = currentState
 		} else {
 
 			turns++
