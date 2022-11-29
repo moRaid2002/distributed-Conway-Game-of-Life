@@ -162,7 +162,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			requests = append(requests, stubs.Request{newState, req.P, 0, "", numberOfAWS, i * int(req.P.ImageHeight/numberOfAWS), i + 1, ""})
 			responses = append(responses, new(stubs.Response))
 		}
-
+		channels = nil
+		for i := 0; i < numberOfAWS; i++ {
+			channels = append(channels, make(chan *rpc.Call, 10))
+		}
 		for i := 0; i < numberOfAWS; i++ {
 			makeCall(Clients[i], requests[i], responses[i], channels[i])
 		}
