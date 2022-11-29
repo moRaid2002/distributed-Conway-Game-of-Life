@@ -52,7 +52,6 @@ func AddIp(str string) {
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
 	AddIp(req.Ip)
-
 	return
 }
 
@@ -169,6 +168,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		}
 
 		if len(newState) != req.P.ImageHeight {
+
 			IpAddresses = nil
 			for i := range Clients {
 				Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
@@ -176,6 +176,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			numberOfAWS = len(IpAddresses)
 			servers = nil
 			if numberOfAWS == 0 {
+				fmt.Println("Error , all servers disconnected ")
 				return err
 			}
 			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS) + " servers")
