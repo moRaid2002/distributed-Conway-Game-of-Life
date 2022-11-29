@@ -200,6 +200,22 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			}
 
 			newState = currentState
+		} else if len(IpAddresses) > numberOfAWS {
+
+			numberOfAWS = len(IpAddresses)
+			servers = nil
+
+			fmt.Println("server back, continue with " + strconv.Itoa(numberOfAWS) + " servers")
+			for i := range IpAddresses {
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+			}
+			y++
+			Clients = nil
+			for i := range servers {
+				clients, _ := rpc.Dial("tcp", *servers[i])
+				Clients = append(Clients, clients)
+			}
+
 		} else {
 
 			turns++
