@@ -17,7 +17,7 @@ import (
 var x = 0
 
 func SendIp(str string) {
-	server := flag.String("broker"+strconv.Itoa(x), "3.239.31.124:8030", "IP:port string to connect to as server")
+	server := flag.String("broker"+strconv.Itoa(x), "44.211.48.13:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
