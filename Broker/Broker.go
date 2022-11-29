@@ -145,7 +145,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	currentState = req.CurrentStates
 
 	for turns < req.P.Turns && !end && !simiend {
-
+		time.Sleep(time.Second)
 		var requests []stubs.Request
 		var responses []*stubs.Response
 
