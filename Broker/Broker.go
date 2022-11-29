@@ -41,6 +41,7 @@ var simiend = false
 var mutex = sync.Mutex{}
 
 func AddIp(str string) {
+	IpAddressesCopy = append(IpAddressesCopy, str)
 	for i := range IpAddresses {
 		if IpAddresses[i] == str {
 			return
@@ -49,7 +50,7 @@ func AddIp(str string) {
 	fmt.Println(str)
 	fmt.Println("Ip received")
 	IpAddresses = append(IpAddresses, str)
-	IpAddressesCopy = append(IpAddressesCopy, str)
+	//IpAddressesCopy = append(IpAddressesCopy, str)
 }
 func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error) {
 	AddIp(req.Ip)
@@ -125,8 +126,13 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	x++
 	flag.Parse()
 	for i := range servers {
-		clients, _ := rpc.Dial("tcp", *servers[i])
-		Clients = append(Clients, clients)
+		clients, err := rpc.Dial("tcp", *servers[i])
+		//Clients = append(Clients, clients)
+		if err != nil {
+			fmt.Println("server disconnected ")
+		} else {
+			Clients = append(Clients, clients)
+		}
 
 	}
 
@@ -143,11 +149,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		simiend = false
 	}
 	currentState = req.CurrentStates
-	IpAddressesCopy = nil
-	for i := range Clients {
-		Clients[i].Call(stubs.GameOfLifeSend, new(stubs.Response), new(stubs.Request))
-	}
-	fmt.Println(IpAddresses, IpAddressesCopy)
+
 	for turns < req.P.Turns && !end && !simiend {
 
 		var requests []stubs.Request
