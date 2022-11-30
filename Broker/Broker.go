@@ -128,7 +128,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	var Clients []*rpc.Client
 
 	for i := range IpAddresses {
-		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(index1), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
 
 	index1++
@@ -217,7 +217,7 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 			fmt.Println("server back, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			for i := range IpAddresses {
-				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(index)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(index1)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
 			index2++
 			Clients = nil
