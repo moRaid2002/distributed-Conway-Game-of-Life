@@ -12,16 +12,17 @@ import (
 	"uk.ac.bris.cs/gameoflife/gol/stubs"
 )
 
-var x = 1
-var y = 1
+var index1 = 1
+var index2 = 1
 var IpAddresses []string
-var IpAddressesCopy []string
 
+//calls all servers
 func makeCall(client *rpc.Client, req stubs.Request, res *stubs.Response, channel chan *rpc.Call) {
 	client.Go(stubs.GameOfLifeHandler, req, res, channel)
 
 }
 
+//stops all servers
 func StopAll(client *rpc.Client) {
 	req := new(stubs.Request)
 	res := new(stubs.Response)
@@ -31,6 +32,7 @@ func StopAll(client *rpc.Client) {
 
 type Broker struct{}
 
+// global variables to store state
 var currentState [][]byte
 var Turn = 0
 var index = 0
@@ -40,8 +42,8 @@ var simiend = false
 
 var mutex = sync.Mutex{}
 
+// adds the ip address of a server
 func AddIp(str string) {
-	IpAddressesCopy = append(IpAddressesCopy, str)
 	for i := range IpAddresses {
 		if IpAddresses[i] == str {
 			return
@@ -57,6 +59,7 @@ func (s *Broker) AddIpServer(req stubs.Request, res *stubs.Response) (err error)
 	return
 }
 
+//reports the live view of the current state
 func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
 	if req.P.ImageHeight == len(currentState) {
 		mutex.Lock()
@@ -66,6 +69,8 @@ func (s *Broker) LiveView(req stubs.Request, res *stubs.Response) (err error) {
 	}
 	return
 }
+
+//processes all key presses sent from client
 func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 	switch req.Keypress {
 	case "s":
@@ -87,6 +92,8 @@ func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 
 	return
 }
+
+//calculates alive cells at a certain turn
 func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 	mutex.Lock()
 	count := 0
@@ -105,6 +112,7 @@ func (s *Broker) AliveCell(req stubs.Request, res *stubs.Response) (err error) {
 	return
 }
 
+// main function that processes all the turns
 func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 	currentState = req.CurrentStates
@@ -120,10 +128,10 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 	var Clients []*rpc.Client
 
 	for i := range IpAddresses {
-		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(x), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+		servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 	}
 
-	x++
+	index1++
 	flag.Parse()
 	for i := range servers {
 		clients, err := rpc.Dial("tcp", *servers[i])
@@ -192,9 +200,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 			}
 			fmt.Println("server disconnected, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			for i := range IpAddresses {
-				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(index1)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
-			y++
+			index2++
 			Clients = nil
 			for i := range servers {
 				clients, _ := rpc.Dial("tcp", *servers[i])
@@ -209,9 +217,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 
 			fmt.Println("server back, continue with " + strconv.Itoa(numberOfAWS) + " servers")
 			for i := range IpAddresses {
-				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(x)+"-"+strconv.Itoa(y), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
+				servers = append(servers, flag.String("server-"+strconv.Itoa(i)+"-"+"-"+strconv.Itoa(index)+"-"+strconv.Itoa(index2), IpAddresses[i]+":8030", "IP:port string to connect to as server"))
 			}
-			y++
+			index2++
 			Clients = nil
 			for i := range servers {
 				clients, err := rpc.Dial("tcp", *servers[i])

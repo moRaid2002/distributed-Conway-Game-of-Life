@@ -26,9 +26,10 @@ type distributorChannels struct {
 }
 
 var Lastturn = 0
-var Lastturnx = 0
-var LastState [][]byte
+var LastturnViewed = 0
+var LastStateViewed [][]byte
 var diff = 0
+var mutexLock = sync.Mutex{}
 
 func makeCall(client *rpc.Client, channel chan *rpc.Call, req stubs.Request, res *stubs.Response) {
 
@@ -40,16 +41,16 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerLiveView, req, res)
-	if Lastturnx < res.Turn {
+	if LastturnViewed < res.Turn {
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
-				if res.NewState[h][w] != LastState[h][w] {
+				if res.NewState[h][w] != LastStateViewed[h][w] {
 					c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
 				}
 			}
 		}
-		LastState = res.NewState
-		Lastturnx = res.Turn
+		LastStateViewed = res.NewState
+		LastturnViewed = res.Turn
 	}
 }
 func Alive(client *rpc.Client, c distributorChannels, flags *bool, newWorld *[][]byte, p subParams.Params) {
@@ -98,9 +99,11 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 
 	go func(flags *bool) {
 		for {
+			mutexLock.Lock()
 			if *flags {
 				LiveView(client, c, newWorld, p)
 			}
+			mutexLock.Unlock()
 		}
 	}(flags)
 	go func(mutex *sync.Mutex) {
@@ -174,25 +177,23 @@ func distributor(p Params, c distributorChannels) {
 
 	// TODO: Execute all turns of the Game of Life.
 	flag := true
-	x := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
-	LastState = newWorld
+	P := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
+	LastStateViewed = newWorld
 	diff++
-	client(&newWorld, x, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads)+"-"+strconv.Itoa(diff), c, &flag)
+	client(&newWorld, P, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads)+"-"+strconv.Itoa(diff), c, &flag)
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
-	/*	c.ioCommand <- ioOutput
-		filename = filename + "x" + strconv.Itoa(p.Turns)
-		c.ioFilename <- filename
+	c.ioCommand <- ioOutput
+	filename = filename + "x" + strconv.Itoa(p.Turns)
+	c.ioFilename <- filename
 
-		for h := 0; h < p.ImageHeight; h++ {
-			for w := 0; w < p.ImageWidth; w++ {
+	for h := 0; h < p.ImageHeight; h++ {
+		for w := 0; w < p.ImageWidth; w++ {
 
-				c.ioOutput <- newWorld[h][w]
+			c.ioOutput <- newWorld[h][w]
 
-			}
 		}
-
-	*/
+	}
 
 	// Make sure that the Io has finished any output before exiting.
 	new := make([]util.Cell, 0)
@@ -215,6 +216,9 @@ func distributor(p Params, c distributorChannels) {
 	c.events <- StateChange{p.Turns, Quitting}
 
 	// Close the channel to stop the SDL goroutine gracefully. Removing may cause deadlock.
+	mutexLock.Lock()
 	close(c.events)
+
 	flag = false
+	mutexLock.Unlock()
 }

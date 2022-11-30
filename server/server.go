@@ -14,18 +14,21 @@ import (
 	"uk.ac.bris.cs/gameoflife/gol/subParams"
 )
 
-var x = 0
+var index = 0
 
+//send ip address to the broker
 func SendIp(str string) {
-	server := flag.String("broker"+strconv.Itoa(x), "34.200.218.62:8030", "IP:port string to connect to as server")
+	server := flag.String("broker"+strconv.Itoa(index), "34.200.218.62:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
 	req := stubs.Request{nil, *new(subParams.Params), 0, "", 0, 0, 0, str}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerIp, req, res)
-	x++
+	index++
 }
+
+//process one turn of Game Of Life
 func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
 	nextState := make([][]byte, endX-startX)
@@ -95,8 +98,10 @@ func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][
 			}
 		}
 	}
-	return nextState // The reason why you need New World2..... Because if you do not store it to newWorld2 then there could be a cell which is still alive, although it has to be dead.
+	return nextState
 }
+
+//worker function
 func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX int, endX int) {
 	newState := gameOfLife(p, newWorld, startX, endX)
 	out <- newState // Sending the game of life function through the channel.
@@ -106,11 +111,14 @@ var end = false
 
 type GameOfLife struct{}
 
+//stop the server
 func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("stopping")
 	end = true
 	return
 }
+
+//send the ip adress to the broker again
 func (s *GameOfLife) Reset(req stubs.Request, res *stubs.Response) (err error) {
 	resp, _ := http.Get("https://ifconfig.me")
 
@@ -120,6 +128,8 @@ func (s *GameOfLife) Reset(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("sent again")
 	return
 }
+
+//devide the work inbtween threads and run gameoflife
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 
 	var chanels []chan [][]byte
@@ -151,6 +161,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	return
 }
 
+//main - send ip address
 func main() {
 	fmt.Println("working")
 	res, _ := http.Get("https://ifconfig.me")
