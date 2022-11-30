@@ -247,7 +247,9 @@ func (s *Broker) Client(req stubs.Request, res *stubs.Response) (err error) {
 		}
 		stop = true
 	}
-
+	for i := 0; i < numberOfAWS; i++ {
+		Clients[i].Close()
+	}
 	res.NewState = newState
 
 	return
