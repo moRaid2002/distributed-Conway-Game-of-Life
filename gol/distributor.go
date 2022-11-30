@@ -72,7 +72,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 	client.Call(stubs.BrokerKeyPress, req, res)
 	if keypress == "s" {
 		c.ioCommand <- ioOutput
-		filename2 := "current-state-s"
+		filename2 := fmt.Sprintf("%vx%vx%v.pgm", p.ImageWidth, p.ImageHeight, res.Turn)
 		c.ioFilename <- filename2
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {

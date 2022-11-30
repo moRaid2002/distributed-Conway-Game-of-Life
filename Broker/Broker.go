@@ -75,6 +75,7 @@ func (s *Broker) KeyPress(req stubs.Request, res *stubs.Response) (err error) {
 	switch req.Keypress {
 	case "s":
 		res.NewState = currentState
+		res.Turn = Turn
 	case "p":
 		if index%2 == 0 {
 			fmt.Println("Pausing")
