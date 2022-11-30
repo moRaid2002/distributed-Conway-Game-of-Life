@@ -12,9 +12,6 @@ import (
 	"uk.ac.bris.cs/gameoflife/util"
 )
 
-//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   	Hiro
-
-// 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  	MO
 type distributorChannels struct {
 	events     chan<- Event
 	ioCommand  chan<- ioCommand
