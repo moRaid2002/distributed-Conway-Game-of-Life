@@ -16,9 +16,9 @@ import (
 
 var index = 0
 
-//send ip address to the broker
+// send ip address to the broker
 func SendIp(str string) {
-	server := flag.String("broker"+strconv.Itoa(index), "34.200.218.62:8030", "IP:port string to connect to as server")
+	server := flag.String("broker"+strconv.Itoa(index), "44.205.16.223:8030", "IP:port string to connect to as server")
 	flag.Parse()
 	client, _ := rpc.Dial("tcp", *server)
 	defer client.Close()
@@ -28,7 +28,7 @@ func SendIp(str string) {
 	index++
 }
 
-//process one turn of Game Of Life
+// process one turn of Game Of Life
 func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][]byte {
 	var aliveCell = 0
 	nextState := make([][]byte, endX-startX)
@@ -101,7 +101,7 @@ func gameOfLife(p subParams.Params, newWorld [][]byte, startX int, endX int) [][
 	return nextState
 }
 
-//worker function
+// worker function
 func worker(p subParams.Params, newWorld [][]byte, out chan<- [][]byte, startX int, endX int) {
 	newState := gameOfLife(p, newWorld, startX, endX)
 	out <- newState // Sending the game of life function through the channel.
@@ -111,14 +111,14 @@ var end = false
 
 type GameOfLife struct{}
 
-//stop the server
+// stop the server
 func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("stopping")
 	end = true
 	return
 }
 
-//send the ip adress to the broker again
+// send the ip adress to the broker again
 func (s *GameOfLife) Reset(req stubs.Request, res *stubs.Response) (err error) {
 	resp, _ := http.Get("https://ifconfig.me")
 
@@ -129,7 +129,7 @@ func (s *GameOfLife) Reset(req stubs.Request, res *stubs.Response) (err error) {
 	return
 }
 
-//devide the work inbtween threads and run gameoflife
+// devide the work inbtween threads and run gameoflife
 func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err error) {
 
 	var chanels []chan [][]byte
@@ -161,7 +161,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 	return
 }
 
-//main - send ip address
+// main - send ip address
 func main() {
 	fmt.Println("working")
 	res, _ := http.Get("https://ifconfig.me")
