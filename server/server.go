@@ -17,15 +17,15 @@ import (
 var index = 0
 
 // send ip address to the broker
-func SendIp(str string) {
+func SendIp(str string) { // IP Address if the broker is added here to call broker by the following IP address.
 	server := flag.String("broker"+strconv.Itoa(index), "44.205.16.223:8030", "IP:port string to connect to as server")
 	flag.Parse()
-	client, _ := rpc.Dial("tcp", *server)
+	client, _ := rpc.Dial("tcp", *server) // calling the broker by the specific IP address above and call the function.
 	defer client.Close()
 	req := stubs.Request{nil, *new(subParams.Params), 0, "", 0, 0, 0, str}
 	res := new(stubs.Response)
 	client.Call(stubs.BrokerIp, req, res)
-	index++
+	index++ // number of the server has to be unique, so need to add index, most of the time.
 }
 
 // process one turn of Game Of Life
@@ -114,7 +114,7 @@ type GameOfLife struct{}
 // stop the server
 func (s *GameOfLife) StopAll(req stubs.Request, res *stubs.Response) (err error) {
 	fmt.Println("stopping")
-	end = true
+	end = true // this will make the server shut down cleanly. look at the code below shut the listener.close , when the end becomes true then shut the all the server.
 	return
 }
 
@@ -144,7 +144,7 @@ func (s *GameOfLife) EvaluateBoard(req stubs.Request, res *stubs.Response) (err 
 
 	for threads := 0; threads < req.P.Threads; threads++ { // Loop through all the threads.
 		if threads == req.P.Threads-1 { // According to the condition match run the go Routine.
-			go worker(req.P, req.CurrentStates, chanels[threads], req.Offset+(threads)*int(req.P.ImageHeight/(req.P.Threads*req.NumberAWS)), req.Offset+(req.P.ImageHeight/req.NumberAWS)+x)
+			go worker(req.P, req.CurrentStates, chanels[threads], req.Offset+(threads)*int(req.P.ImageHeight/(req.P.Threads*req.NumberAWS)), req.Offset+(req.P.ImageHeight/req.NumberAWS)+x) // worker funbction create the slices and devide the work between each threads then run the game of life function.
 		} else {
 			go worker(req.P, req.CurrentStates, chanels[threads], req.Offset+(threads)*int(req.P.ImageHeight/(req.P.Threads*req.NumberAWS)), req.Offset+(threads+1)*int(req.P.ImageHeight/(req.P.Threads*req.NumberAWS)))
 		}

@@ -22,9 +22,9 @@ type distributorChannels struct {
 	keyPresses <-chan rune
 }
 
-var Lastturn = 0
-var LastturnViewed = 0
-var LastStateViewed [][]byte
+var Lastturn = 0             //updated by the res.turn
+var LastturnViewed = 0       // last turn viewed on the SDL
+var LastStateViewed [][]byte // Last State viewed on the SDL
 var diff = 0
 var mutexLock = sync.Mutex{}
 
@@ -41,7 +41,7 @@ func LiveView(client *rpc.Client, c distributorChannels, newWorld *[][]byte, p s
 	if LastturnViewed < res.Turn {
 		for h := 0; h < p.ImageHeight; h++ {
 			for w := 0; w < p.ImageWidth; w++ {
-				if res.NewState[h][w] != LastStateViewed[h][w] {
+				if res.NewState[h][w] != LastStateViewed[h][w] { // if the calculation done by the Broker LiveView function then notify using CellFlipped.
 					c.events <- CellFlipped{res.Turn, util.Cell{w, h}}
 				}
 			}
@@ -81,6 +81,7 @@ func Press(client *rpc.Client, keypress string, newWorld *[][]byte, p subParams.
 
 }
 
+// client calls Broker by following IP address
 func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributorChannels, flags *bool) {
 	server := flag.String(server2, "44.205.16.223:8030", "IP:port string to connect to as server")
 	flag.Parse()
@@ -89,10 +90,11 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	req := stubs.Request{*newWorld, p, 0, "", 0, p.ImageHeight, 0, ""}
 	res := new(stubs.Response)
 	channel := make(chan *rpc.Call, 10)
-	makeCall(client, channel, req, res)
+	makeCall(client, channel, req, res) //for calling initial state to the Broker
 
 	ticker := time.NewTicker(time.Second * 2)
 	mutex := sync.Mutex{}
+	pause := 0
 
 	go func(flags *bool) {
 		for {
@@ -108,6 +110,14 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 			receivingKeyPress := <-c.keyPresses
 			switch receivingKeyPress {
 			case 'p':
+				if pause%2 == 0 {
+					fmt.Println("Pausing, current Turn :" + strconv.Itoa(LastturnViewed))
+
+				} else {
+					fmt.Println("Continuing")
+
+				}
+				pause++
 				Press(client, "p", newWorld, p, c)
 			case 's':
 				Press(client, "s", newWorld, p, c)
@@ -132,7 +142,7 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 		for {
 			select {
 			case <-ticker.C:
-				mutex.Lock()
+				mutex.Lock() // to avoid mismatch
 				Alive(client, c, flags, newWorld, p)
 				mutex.Unlock()
 			}
@@ -140,9 +150,8 @@ func client(newWorld *[][]byte, p subParams.Params, server2 string, c distributo
 	}(&mutex)
 
 	select {
-	case <-channel:
-		*newWorld = res.NewState
-
+	case <-channel: // code is stuck here until, receiving 'done' from makecall function.
+		*newWorld = res.NewState // end of the game update the state. Broker.go 186
 	}
 
 }
@@ -173,11 +182,12 @@ func distributor(p Params, c distributorChannels) {
 	}
 
 	// TODO: Execute all turns of the Game of Life.
-	flag := true
+	flag := true // for closed channel
 	P := subParams.Params{p.Turns, p.Threads, p.ImageWidth, p.ImageHeight}
 	LastStateViewed = newWorld
 	diff++
 	client(&newWorld, P, filename+"-"+strconv.Itoa(p.Turns)+"-"+strconv.Itoa(p.Threads)+"-"+strconv.Itoa(diff), c, &flag)
+	// address is needed to change the original 2D slice.
 
 	// TODO: Report the final state using FinalTurnCompleteEvent.
 	c.ioCommand <- ioOutput
